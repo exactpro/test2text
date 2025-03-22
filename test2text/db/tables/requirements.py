@@ -1,5 +1,8 @@
+from typing import Optional
+
 from .abstract_table import AbstractTable
 from sqlite3 import Connection
+from sqlite_vec import serialize_float32
 from string import Template
 
 
@@ -25,12 +28,17 @@ class RequirementsTable(AbstractTable):
             """).substitute(embedding_size=self.embedding_size)
         )
 
-    def insert(self, summary: str, embedding: list[float] = None, external_id: str = None) -> int:
-        return self.connection.execute(
+    def insert(self, summary: str, embedding: list[float] = None, external_id: str = None) -> Optional[int]:
+        cursor = self.connection.execute(
             """
             INSERT OR IGNORE INTO Annotations (summary, embedding external_id)
             VALUES (?, ?, ?)
             RETURNING id
             """,
-            (summary, embedding, external_id)
-        ).fetchone()[0]
+            (summary, serialize_float32(embedding) if embedding else None, external_id)
+        )
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+        else:
+            return None
