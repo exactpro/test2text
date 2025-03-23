@@ -16,7 +16,7 @@ class AnnotationsTable(AbstractTable):
         self.connection.execute(
             Template("""
             CREATE TABLE IF NOT EXISTS Annotations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT ,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 summary TEXT UNIQUE NOT NULL,
                 embedding float[$embedding_size],
                 
@@ -28,17 +28,27 @@ class AnnotationsTable(AbstractTable):
             """).substitute(embedding_size=self.embedding_size)
         )
 
-    def insert(self, summary: str, embedding: list[float] = None) -> Optional[int]:
+    def insert(self, summary: str, embedding: list[float] = None) -> int:
         cursor = self.connection.execute(
             """
             INSERT OR IGNORE INTO Annotations (summary, embedding)
             VALUES (?, ?)
             RETURNING id
             """,
-            (summary, serialize_float32(embedding) if embedding else None)
+            (summary, serialize_float32(embedding) if embedding is not None else None)
         )
         result = cursor.fetchone()
+        cursor.close()
         if result:
             return result[0]
         else:
-            return None
+            cursor = self.connection.execute(
+                """
+                SELECT id FROM Annotations
+                WHERE summary = ?
+                """,
+                (summary,)
+            )
+            result = cursor.fetchone()
+            cursor.close()
+            return result[0]

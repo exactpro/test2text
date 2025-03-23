@@ -9,6 +9,8 @@ External libraries:
 erDiagram
     annotations {
         INTEGER id
+        TEXT test_script
+        TEXT test_case
         TEXT summary
         float[] embedding
     }
