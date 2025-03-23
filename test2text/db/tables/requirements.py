@@ -31,11 +31,11 @@ class RequirementsTable(AbstractTable):
     def insert(self, summary: str, embedding: list[float] = None, external_id: str = None) -> Optional[int]:
         cursor = self.connection.execute(
             """
-            INSERT OR IGNORE INTO Annotations (summary, embedding external_id)
+            INSERT OR IGNORE INTO Requirements (summary, embedding, external_id)
             VALUES (?, ?, ?)
             RETURNING id
             """,
-            (summary, serialize_float32(embedding) if embedding else None, external_id)
+            (summary, serialize_float32(embedding) if embedding is not None else None, external_id)
         )
         result = cursor.fetchone()
         if result:
