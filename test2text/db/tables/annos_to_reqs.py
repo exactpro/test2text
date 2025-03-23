@@ -6,17 +6,24 @@ class AnnotationsToRequirementsTable(AbstractTable):
             CREATE TABLE IF NOT EXISTS AnnotationsToRequirements (
                 annotation_id INTEGER NOT NULL,
                 requirement_id INTEGER NOT NULL,
+                cached_distance REAL NOT NULL,
                 UNIQUE (annotation_id, requirement_id),
                 FOREIGN KEY (annotation_id) REFERENCES Annotations(id),
                 FOREIGN KEY (requirement_id) REFERENCES Requirements(id)
             )
         """)
 
-    def insert(self, annotation_id: int, requirement_id: int):
+    def recreate_table(self):
+        self.connection.execute("""
+            DROP TABLE IF EXISTS AnnotationsToRequirements
+        """)
+        self.init_table()
+
+    def insert(self, annotation_id: int, requirement_id: int, cached_distance: float):
         self.connection.execute(
             """
-            INSERT OR IGNORE INTO AnnotationsToRequirements (annotation_id, requirement_id)
-            VALUES (?, ?)
+            INSERT OR IGNORE INTO AnnotationsToRequirements (annotation_id, requirement_id, cached_distance)
+            VALUES (?, ?, ?)
             """,
-            (annotation_id, requirement_id)
+            (annotation_id, requirement_id, cached_distance)
         )
