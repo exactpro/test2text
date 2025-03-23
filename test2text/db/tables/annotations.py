@@ -7,7 +7,7 @@ from string import Template
 
 
 class AnnotationsTable(AbstractTable):
-    def __init__(self, connection: Connection, embedding_size: int = 512):
+    def __init__(self, connection: Connection, embedding_size: int):
         super().__init__(connection)
         self.embedding_size = embedding_size
 
