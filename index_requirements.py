@@ -9,7 +9,7 @@ BATCH_SIZE = 100
 if __name__ == '__main__':
     db = DbClient('./private/requirements.db')
     # Index requirements
-    with open('./private/Copy of LTSE TRACEABILITY MATRIX - EQ.csv', newline='', encoding='utf-8', mode='r') as csvfile:
+    with open('./private/TRACEABILITY MATRIX.csv', newline='', encoding='utf-8', mode='r') as csvfile:
         reader = csv.reader(csvfile)
         for _ in range(3):
             next(reader)
