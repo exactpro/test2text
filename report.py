@@ -81,9 +81,7 @@ if __name__ == '__main__':
             f.write('</ul>')
             f.write('<h3>Test Scripts</h3><ul>')
             for test_script in current_test_scripts:
-                f.write(f"""
-                                    <li>#{case_id} - <span class="text-blue-600">{test_script}</span> / <span class="text-orange-600">{test_case}</span></li>
-                                    """)
+                f.write(f"<li>{test_script}</li>")
             f.write('</ul></section>')
 
         for row in data.fetchall():
