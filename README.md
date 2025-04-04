@@ -18,6 +18,34 @@ To install the dependencies, run the following command:
 uv sync
 ```
 
+### PyTorch version
+
+PyTorch is default set to CPU distributive:
+
+```toml
+[tool.uv.sources]
+torch = {index = "pytorch-cpu"}
+```
+
+If you want to use a CUDA distributive, replace index with one of the following values:
+
+- `pytorch-cu118`
+- `pytorch-cu124`
+- `pytorch-cu126`
+
+Regenerate lock file:
+```shell
+uv lock
+```
+
+> Please do not commit updated lock file into GIT
+
+Install dependencies from the updated lock file:
+
+```shell
+uv sync
+```
+
 ## How it works
 
 We use [`nomic-ai/nomic-embed-text-v1`](https://huggingface.co/nomic-ai/nomic-embed-text-v1) to create embeddings from text. 
