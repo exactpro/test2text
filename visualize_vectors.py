@@ -17,6 +17,17 @@ def extract_annotation_vectors(db: DbClient):
         vectors.append(np.array(unpack_float32(row[0])))
     return np.array(vectors)
 
+def extract_closest_annotation_vectors(db: DbClient):
+    vectors = []
+    for row in db.conn.execute("""
+    SELECT embedding FROM Annotations
+    WHERE id IN (
+    SELECT DISTINCT annotation_id FROM AnnotationsToRequirements
+    )
+    """).fetchall():
+        vectors.append(np.array(unpack_float32(row[0])))
+    return np.array(vectors)
+
 def extract_requirement_vectors(db: DbClient):
     vectors = []
     for row in db.conn.execute("SELECT embedding FROM Requirements").fetchall():
@@ -92,3 +103,12 @@ if __name__ == "__main__":
     plt.legend(fontsize=FONT_SIZE)
     plt.grid(True)
     plt.savefig(f'./private/Requirements vs Annotations vectors 3d.png')
+
+    anno_vectors_2d = minifold_vectors_2d(extract_closest_annotation_vectors(db))
+    plt.figure(figsize=FIG_SIZE)
+    plt.scatter(reqs_vectors_2d[:, 0], reqs_vectors_2d[:, 1], alpha=0.5, s=40, label='Requirements')
+    plt.scatter(anno_vectors_2d[:, 0], anno_vectors_2d[:, 1], alpha=0.5, s=40, label='Annotations')
+    plt.title('Requirements vs Annotations')
+    plt.legend(fontsize=FONT_SIZE)
+    plt.grid(True)
+    plt.savefig(f'./private/Requirements vs Closest Annotations vectors 2d.png')
