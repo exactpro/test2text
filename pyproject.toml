@@ -12,6 +12,7 @@ dependencies = [
     "matplotlib>=3.9.4",
     "sentence-transformers>=4.0.1",
     "sqlite-vec>=0.1.6",
+    "tabbyset>=1.0.0",
     "torch",
 ]
 
