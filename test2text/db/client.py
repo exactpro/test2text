@@ -2,7 +2,7 @@ import sqlite3
 import sqlite_vec
 import logging
 
-from .tables import RequirementsTable, AnnotationsTable, AnnotationsToRequirementsTable, TestCasesTable, TestCasesToAnnotationsTable
+from .tables import RequirementsTable, AnnotationsTable, AnnotationsToRequirementsTable, TestCasesTable, TestCasesToAnnotationsTable, TestCaseToAnnotationsTable
 from ..utils.path import PathParam
 
 logger = logging.getLogger(__name__)
@@ -30,6 +30,7 @@ class DbClient:
         self.test_cases = TestCasesTable(self.conn)
         self.annos_to_reqs = AnnotationsToRequirementsTable(self.conn)
         self.cases_to_annos = TestCasesToAnnotationsTable(self.conn)
+        self.case_to_annos = TestCaseToAnnotationsTable(self.conn)
         self.requirements.init_table()
         self.annotations.init_table()
         self.test_cases.init_table()
