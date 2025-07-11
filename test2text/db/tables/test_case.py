@@ -16,7 +16,6 @@ class TestCasesTable(AbstractTable):
             """
             INSERT OR IGNORE INTO TestCases (test_script, test_case)
             VALUES (?, ?)
-            RETURNING id
             """,
             (test_script, test_case)
         )
