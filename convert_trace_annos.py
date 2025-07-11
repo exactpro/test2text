@@ -1,7 +1,6 @@
 import logging
 import csv
 from pathlib import Path
-
 from test2text.db import DbClient
 
 logging.basicConfig(level=logging.INFO)
