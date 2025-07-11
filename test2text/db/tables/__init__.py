@@ -4,4 +4,4 @@ from .requirements import RequirementsTable
 from .annos_to_reqs import AnnotationsToRequirementsTable
 from .test_case import TestCasesTable
 from .cases_to_annos import TestCasesToAnnotationsTable
-from .case_to_annos import TestCaseToAnnotationsTable
+from .case_annos_trace import TestCaseToAnnotationsTable

@@ -1,37 +1,37 @@
 import logging
 import csv
+from pathlib import Path
+
 from test2text.db import DbClient
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def trace_test_cases_to_annos_and_save_csv(db_path, csv_path):
+def trace_test_cases_to_annos_and_save_csv(db_path: Path, trace_file_path: Path, csv_path: Path):
     db = DbClient(db_path)
     db.case_to_annos.init_table()
-    case_to_annos = db.conn.execute("""
-                    SELECT c.case_id, GROUP_CONCAT(a.summary, ", ")
-                    FROM CasesToAnnos as c
-                    JOIN Annotations as a ON c.annotation_id == a.id
-                    GROUP BY case_id;
-                """)
 
-    logger.info("Writing resulted table to CSV and inserting into case_to_annos table...")
-    with open(csv_path, mode='w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['case_id', 'annotations'])
-        for i, (case_id, annotations) in enumerate(case_to_annos.fetchall()):
-            db.case_to_annos.insert(case_id=case_id, annotations=annotations)
-            writer.writerow([case_id, annotations])
+    test_cases = set()
+    logger.info("Reading trace file and inserting annotations into table...")
+    with open(trace_file_path, mode='r', newline='', encoding='utf-8') as trace_file:
+        content = trace_file.readlines()
+        for annotation in content[3:]:
+            [summary, _, test_script, test_case, *_] = annotation
+            annotation_id = db.annotations.insert(summary)
+            case_id = db.test_cases.insert(test_script, test_case)
+            db.cases_to_annos.insert(case_id=case_id, annotation_id=annotation_id)
+            db.case_to_annos.update_annotations(case_id=case_id, addition=annotation)
+            test_cases.add(case_id)
 
     db.conn.commit()
-    logger.info(f"Inserted testcase-annotations pairs to database.")
-    logger.info(f"CSV file with matches written to {csv_path}")
+    logger.info(f"Inserted {len(test_cases)} testcase-annotations pairs to database.")
 
 
 if __name__ == '__main__':
-    db_path = './private/requirements.db'
-    csv_path = './private/anno_req_min_matches.csv'
-    trace_test_cases_to_annos_and_save_csv(db_path, csv_path)
+    db_path = Path('./private/requirements.db')
+    csv_path = Path('./private/anno_req_min_matches.csv')
+    trace_file_path = Path('./private/annotations/stp_0006.Trace.csv')
+    trace_test_cases_to_annos_and_save_csv(db_path, trace_file_path, csv_path)
 
 
 
