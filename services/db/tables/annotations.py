@@ -33,7 +33,6 @@ class AnnotationsTable(AbstractTable):
             """
             INSERT OR IGNORE INTO Annotations (summary, embedding)
             VALUES (?, ?)
-            RETURNING id
             """,
             (summary, serialize_float32(embedding) if embedding is not None else None),
         )
