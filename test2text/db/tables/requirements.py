@@ -22,20 +22,27 @@ class RequirementsTable(AbstractTable):
 
                 CHECK (
                     typeof(embedding) == 'null' or
-                    (typeof(embedding) == 'blob' and vec_length(embedding) == $embedding_size)
+                    (typeof(embedding) == 'blob' 
+                        and vec_length(embedding) == $embedding_size)
                 )
             )
             """).substitute(embedding_size=self.embedding_size)
         )
 
-    def insert(self, summary: str, embedding: list[float] = None, external_id: str = None) -> Optional[int]:
+    def insert(
+        self, summary: str, embedding: list[float] = None, external_id: str = None
+    ) -> Optional[int]:
         cursor = self.connection.execute(
             """
             INSERT OR IGNORE INTO Requirements (summary, embedding, external_id)
             VALUES (?, ?, ?)
             RETURNING id
             """,
-            (summary, serialize_float32(embedding) if embedding is not None else None, external_id)
+            (
+                summary,
+                serialize_float32(embedding) if embedding is not None else None,
+                external_id,
+            ),
         )
         result = cursor.fetchone()
         if result:

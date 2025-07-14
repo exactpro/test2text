@@ -1,13 +1,13 @@
-from sympy import limit
-
 from test2text.db import DbClient
 from tqdm import tqdm
 
-def add_new_line(summary):
-    return summary.replace('\n', '<br>')
 
-if __name__ == '__main__':
-    with open('./private/report.html', 'w', newline='', encoding='utf-8') as f:
+def add_new_line(summary):
+    return summary.replace("\n", "<br>")
+
+
+if __name__ == "__main__":
+    with open("./private/report.html", "w", newline="", encoding="utf-8") as f:
         f.write("""
         <html>
         <head>
@@ -18,20 +18,32 @@ if __name__ == '__main__':
         </head>
         <body>
         <main style="padding: 1rem;">
-            <article class="prose prose-sm container" style="max-width: 48rem; margin: 0 auto;">
+            <article class="prose prose-sm container" 
+                     style="max-width: 48rem; margin: 0 auto;">
         """)
 
-        db = DbClient('./private/requirements.db')
-        all_reqs_count = db.conn.execute('SELECT COUNT(*) FROM Requirements').fetchone()[0]
+        db = DbClient("./private/requirements.db")
+        all_reqs_count = db.conn.execute(
+            "SELECT COUNT(*) FROM Requirements"
+        ).fetchone()[0]
 
         f.write('<nav style="break-after: page;"><h1>Table of Contents</h1><ul>')
 
-        for requirement in tqdm(db.conn.execute('SELECT * FROM Requirements').fetchall(),
-                                desc='Generating table of contents', unit='requirements', total=all_reqs_count):
+        for requirement in tqdm(
+            db.conn.execute("SELECT * FROM Requirements").fetchall(),
+            desc="Generating table of contents",
+            unit="requirements",
+            total=all_reqs_count,
+        ):
             req_id, req_external_id, req_summary, _ = requirement
-            f.write(f'<li><a href="#req_{req_id}">Requirement {req_external_id} ({req_id})</a></li>')
+            f.write(f"""
+            <li>
+                <a href="#req_{req_id}">
+                    Requirement {req_external_id} ({req_id})
+                </a>
+            </li>""")
 
-        f.write('</ul></nav>')
+        f.write("</ul></nav>")
 
         data = db.conn.execute("""
         SELECT
@@ -60,9 +72,12 @@ if __name__ == '__main__':
         current_req_id = None
         current_annotations = {}
         current_test_scripts = set()
-        progress_bar = tqdm(total=all_reqs_count, desc='Generating report', unit='requirements')
+        progress_bar = tqdm(
+            total=all_reqs_count, desc="Generating report", unit="requirements"
+        )
 
         written_count = 0
+
         def write_requirement():
             global written_count
             # if written_count > 5:
@@ -77,15 +92,26 @@ if __name__ == '__main__':
                                 """)
             for anno_id, (anno_summary, distance) in current_annotations.items():
                 f.write(
-                    f'<li>Annotation {anno_id} (distance: {distance:.3f}): <p>{add_new_line(anno_summary)}</p></li>')
-            f.write('</ul>')
-            f.write('<h3>Test Scripts</h3><ul>')
+                    f"<li>Annotation {anno_id} (distance: {distance:.3f}): <p>{add_new_line(anno_summary)}</p></li>"
+                )
+            f.write("</ul>")
+            f.write("<h3>Test Scripts</h3><ul>")
             for test_script in current_test_scripts:
                 f.write(f"<li>{test_script}</li>")
-            f.write('</ul></section>')
+            f.write("</ul></section>")
 
         for row in data.fetchall():
-            req_id, req_external_id, req_summary, anno_id, anno_summary, distance, case_id, test_script, test_case = row
+            (
+                req_id,
+                req_external_id,
+                req_summary,
+                anno_id,
+                anno_summary,
+                distance,
+                case_id,
+                test_script,
+                test_case,
+            ) = row
             if req_id != current_req_id:
                 if current_req_id is not None:
                     write_requirement()

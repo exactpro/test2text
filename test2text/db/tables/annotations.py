@@ -11,7 +11,6 @@ class AnnotationsTable(AbstractTable):
         super().__init__(connection)
         self.embedding_size = embedding_size
 
-
     def init_table(self):
         self.connection.execute(
             Template("""
@@ -22,32 +21,40 @@ class AnnotationsTable(AbstractTable):
                 
                 CHECK (
                     typeof(embedding) == 'null' or
-                    (typeof(embedding) == 'blob' and vec_length(embedding) == $embedding_size)
+                    (typeof(embedding) == 'blob' 
+                        and vec_length(embedding) == $embedding_size)
                 )
             )
             """).substitute(embedding_size=self.embedding_size)
         )
 
-    def insert(self, summary: str, embedding: list[float] = None) -> int:
+    def insert(self, summary: str, embedding: list[float] = None) -> Optional[int]:
         cursor = self.connection.execute(
             """
             INSERT OR IGNORE INTO Annotations (summary, embedding)
             VALUES (?, ?)
             RETURNING id
             """,
-            (summary, serialize_float32(embedding) if embedding is not None else None)
+            (summary, serialize_float32(embedding) if embedding is not None else None),
         )
         result = cursor.fetchone()
         cursor.close()
         if result:
             return result[0]
         else:
+            return None
+
+    def get_or_insert(self, summary: str, embedding: list[float] = None) -> int:
+        inserted_id = self.insert(summary, embedding)
+        if inserted_id is not None:
+            return inserted_id
+        else:
             cursor = self.connection.execute(
                 """
                 SELECT id FROM Annotations
                 WHERE summary = ?
                 """,
-                (summary,)
+                (summary,),
             )
             result = cursor.fetchone()
             cursor.close()
