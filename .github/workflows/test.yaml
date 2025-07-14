@@ -27,3 +27,6 @@ jobs:
 
         - name: Lint
           run: uvx ruff check
+
+        - name: Check formatting
+          run: uvx ruff check --select E --ignore "E402,E501" --fix
