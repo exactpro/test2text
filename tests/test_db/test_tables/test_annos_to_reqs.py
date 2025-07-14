@@ -1,13 +1,14 @@
 from unittest import TestCase
 from test2text.db.client import DbClient
 
+
 class TestAnnosToReqsTable(TestCase):
     def setUp(self):
-        self.db = DbClient(':memory:')
-        self.anno1 = self.db.annotations.insert('Test Annotation 1')
-        self.anno2 = self.db.annotations.insert('Test Annotation 2')
-        self.req1 = self.db.requirements.insert('Test Requirement 1')
-        self.req2 = self.db.requirements.insert('Test Requirement 2')
+        self.db = DbClient(":memory:")
+        self.anno1 = self.db.annotations.insert("Test Annotation 1")
+        self.anno2 = self.db.annotations.insert("Test Annotation 2")
+        self.req1 = self.db.requirements.insert("Test Requirement 1")
+        self.req2 = self.db.requirements.insert("Test Requirement 2")
         self.wrong_anno = 9999
         self.wrong_req = 8888
 
@@ -47,5 +48,5 @@ class TestAnnosToReqsTable(TestCase):
         count_before = self.db.annos_to_reqs.count()
         inserted = self.db.annos_to_reqs.insert(self.anno1, self.wrong_req, 1)
         count_after = self.db.annos_to_reqs.count()
-        self.assertFalse(inserted) # Should fail due to foreign key constraint
+        self.assertFalse(inserted)  # Should fail due to foreign key constraint
         self.assertEqual(count_before, count_after)

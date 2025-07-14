@@ -11,7 +11,6 @@ class AnnotationsTable(AbstractTable):
         super().__init__(connection)
         self.embedding_size = embedding_size
 
-
     def init_table(self):
         self.connection.execute(
             Template("""
@@ -22,7 +21,8 @@ class AnnotationsTable(AbstractTable):
                 
                 CHECK (
                     typeof(embedding) == 'null' or
-                    (typeof(embedding) == 'blob' and vec_length(embedding) == $embedding_size)
+                    (typeof(embedding) == 'blob' 
+                        and vec_length(embedding) == $embedding_size)
                 )
             )
             """).substitute(embedding_size=self.embedding_size)
@@ -35,7 +35,7 @@ class AnnotationsTable(AbstractTable):
             VALUES (?, ?)
             RETURNING id
             """,
-            (summary, serialize_float32(embedding) if embedding is not None else None)
+            (summary, serialize_float32(embedding) if embedding is not None else None),
         )
         result = cursor.fetchone()
         cursor.close()
@@ -54,7 +54,7 @@ class AnnotationsTable(AbstractTable):
                 SELECT id FROM Annotations
                 WHERE summary = ?
                 """,
-                (summary,)
+                (summary,),
             )
             result = cursor.fetchone()
             cursor.close()

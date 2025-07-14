@@ -1,6 +1,7 @@
 from test2text.utils.semver import Semver
 from unittest import TestCase
 
+
 class TestSemver(TestCase):
     def test_initialization(self):
         version = Semver("1.2.3")

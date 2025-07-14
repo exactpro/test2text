@@ -2,6 +2,7 @@ from typing import Optional
 
 from .abstract_table import AbstractTable
 
+
 class TestCasesTable(AbstractTable):
     def init_table(self):
         self.connection.execute("""
@@ -20,7 +21,7 @@ class TestCasesTable(AbstractTable):
             VALUES (?, ?)
             RETURNING id
             """,
-            (test_script, test_case)
+            (test_script, test_case),
         )
         result = cursor.fetchone()
         cursor.close()
@@ -39,7 +40,7 @@ class TestCasesTable(AbstractTable):
                 SELECT id FROM TestCases
                 WHERE test_script = ? AND test_case = ?
                 """,
-                (test_script, test_case)
+                (test_script, test_case),
             )
             result = cursor.fetchone()
             cursor.close()

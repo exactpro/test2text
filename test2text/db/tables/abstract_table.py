@@ -9,4 +9,3 @@ class AbstractTable(ABC):
     @abstractmethod
     def init_table(self):
         pass
-

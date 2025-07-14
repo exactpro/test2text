@@ -2,6 +2,7 @@ import sqlite3
 
 from .abstract_table import AbstractTable
 
+
 class TestCasesToAnnotationsTable(AbstractTable):
     def init_table(self):
         self.connection.execute("""
@@ -28,8 +29,8 @@ class TestCasesToAnnotationsTable(AbstractTable):
                 VALUES (?, ?)
                 RETURNING true
                 """,
-                (case_id, annotation_id)
-           )
+                (case_id, annotation_id),
+            )
             result = cursor.fetchone()
             cursor.close()
             if result:
