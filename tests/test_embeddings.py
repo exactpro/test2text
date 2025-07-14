@@ -1,6 +1,7 @@
 from unittest import TestCase
 import logging
 logging.basicConfig(level=logging.DEBUG)
+SKIP_TESTS = False
 try:
     from test2text.embeddings.embed import embed_requirement
 except ImportError:
