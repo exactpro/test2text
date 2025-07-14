@@ -14,6 +14,7 @@ class DbClient:
         logger.info('Connecting to database at %s', file_path)
         self.conn = sqlite3.connect(file_path)
         self.embedding_dim = embedding_dim
+        self._turn_on_foreign_keys()
         self._install_extension()
         self._init_tables()
         logger.info('Connected to database at %s', file_path)
@@ -23,6 +24,10 @@ class DbClient:
         logger.debug('Installing sqlite_vec extension')
         sqlite_vec.load(self.conn)
         self.conn.enable_load_extension(False)
+
+    def _turn_on_foreign_keys(self):
+        self.conn.execute("PRAGMA foreign_keys = ON")
+        logger.debug('Foreign keys enabled')
 
     def _init_tables(self):
         self.requirements = RequirementsTable(self.conn, self.embedding_dim)
