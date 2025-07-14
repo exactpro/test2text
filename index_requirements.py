@@ -20,7 +20,7 @@ if __name__ == '__main__':
             embeddings = embed_requirements_batch([requirement for _, requirement in batch])
             for i, (external_id, requirement) in enumerate(batch):
                 embedding = embeddings[i]
-                db.requirements.get_or_insert(requirement, embedding, external_id)
+                db.requirements.insert(requirement, embedding, external_id)
             db.conn.commit()
             batch = []
         for row in reader:
