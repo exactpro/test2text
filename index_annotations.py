@@ -20,7 +20,7 @@ if __name__ == '__main__':
             for row in reader:
                 [summary, _, test_script, test_case, *_] = row
                 anno_id = db.annotations.get_or_insert(summary=summary)
-                tc_id = db.test_cases.insert(test_script=test_script, test_case=test_case)
+                tc_id = db.test_cases.get_or_insert(test_script=test_script, test_case=test_case)
                 db.cases_to_annos.insert(case_id=tc_id, annotation_id=anno_id)
     db.conn.commit()
     # Embed annotations
