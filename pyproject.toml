@@ -27,6 +27,9 @@ production = [
 [tool.uv]
 default-groups = "all"
 
+[tool.ruff.lint]
+ignore = ["E402"]
+
 [tool.uv.sources]
 torch = {index = "pytorch-cpu"}
 
