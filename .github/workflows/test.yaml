@@ -21,7 +21,9 @@ jobs:
           run: uv sync --no-group production
 
         - name: Run tests with coverage
-          run: uv run --no-group production -m coverage run --source=test2text -m unittest discover tests
+          run: |
+            uv run --no-group production -m coverage run --source=test2text -m unittest discover tests
+            uv run --no-group production -m coverage report --ignore-errors
 
-        - name: Display coverage report
-          run: uv run --no-group production -m coverage report --ignore-errors
+        - name: Lint
+          run: uvx ruff check
