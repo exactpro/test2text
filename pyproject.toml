@@ -14,7 +14,9 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = []
+dev = [
+    "coverage>=7.9.2",
+]
 production = [
     "einops>=0.8.1",
     "sentence-transformers>=4.0.1",
