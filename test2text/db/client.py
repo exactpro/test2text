@@ -27,7 +27,7 @@ class DbClient:
             raise RuntimeError(
                 f"SQLite version {sqlite_version} is too old. "
                 f"Required version is {REQUIRED_SQLITE_VERSION}. "
-                "Please upgrade SQLite in your system to use this feature."
+                "Please upgrade SQLite in your system to use test2text."
             )
 
     def __init__(self, file_path: PathParam, embedding_dim: int = 768):
