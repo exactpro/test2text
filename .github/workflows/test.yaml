@@ -24,4 +24,4 @@ jobs:
           run: uv run --no-group production -m coverage run --source=test2text -m unittest discover tests
 
         - name: Display coverage report
-          run: uv run -m coverage report --ignore-errors
+          run: uv run --no-group production -m coverage report --ignore-errors
