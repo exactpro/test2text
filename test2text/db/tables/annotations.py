@@ -28,7 +28,7 @@ class AnnotationsTable(AbstractTable):
             """).substitute(embedding_size=self.embedding_size)
         )
 
-    def insert(self, summary: str, embedding: list[float] = None) -> int:
+    def insert(self, summary: str, embedding: list[float] = None) -> Optional[int]:
         cursor = self.connection.execute(
             """
             INSERT OR IGNORE INTO Annotations (summary, embedding)
@@ -41,6 +41,13 @@ class AnnotationsTable(AbstractTable):
         cursor.close()
         if result:
             return result[0]
+        else:
+            return None
+
+    def get_or_insert(self, summary: str, embedding: list[float] = None) -> int:
+        inserted_id = self.insert(summary, embedding)
+        if inserted_id is not None:
+            return inserted_id
         else:
             cursor = self.connection.execute(
                 """
