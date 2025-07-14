@@ -21,7 +21,7 @@ jobs:
           run: uv sync --no-group production
 
         - name: Run tests with coverage
-          run: uv run -m coverage run -m unittest discover tests
+          run: uv run --no-group production -m coverage run -m unittest discover tests
 
         - name: Display coverage report
           run: uv run -m coverage report --ignore-errors
