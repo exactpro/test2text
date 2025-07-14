@@ -1,0 +1,32 @@
+name: test
+
+on: [push, workflow_dispatch]
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: '3.9'
+
+        - name: Setup uv
+          uses: astral-sh/setup-uv@v5
+
+        - name: Install dependencies
+          run: uv sync --no-group production
+
+        - name: Run tests with coverage
+          run: |
+            uv run --no-group production -m coverage run --source=test2text -m unittest discover tests
+            uv run --no-group production -m coverage report --ignore-errors
+
+        - name: Lint
+          run: uvx ruff check
+
+        - name: Check formatting
+          run: uvx ruff check --select E --ignore "E402,E501" --fix

@@ -1,3 +1,11 @@
+__all__ = [
+    "AbstractTable",
+    "AnnotationsTable",
+    "RequirementsTable",
+    "AnnotationsToRequirementsTable",
+    "TestCasesTable",
+    "TestCasesToAnnotationsTable",
+]
 from .abstract_table import AbstractTable
 from .annotations import AnnotationsTable
 from .requirements import RequirementsTable
