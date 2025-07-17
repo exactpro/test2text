@@ -4,8 +4,8 @@ import logging
 from pathlib import Path
 
 logging.basicConfig(level=logging.DEBUG)
-from test2text.db import DbClient
-from test2text.embeddings.embed import embed_annotations_batch
+from services.db import DbClient
+from services.embeddings.embed import embed_annotations_batch
 
 BATCH_SIZE = 100
 

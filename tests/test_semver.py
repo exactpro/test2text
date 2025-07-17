@@ -1,4 +1,4 @@
-from test2text.utils.semver import Semver
+from services.utils.semver import Semver
 from unittest import TestCase
 
 

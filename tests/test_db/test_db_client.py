@@ -1,5 +1,5 @@
 from unittest import TestCase
-from test2text.db.client import DbClient
+from services.db.client import DbClient
 
 
 class TestDBClient(TestCase):
