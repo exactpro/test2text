@@ -2,7 +2,7 @@ import sqlite3
 import sqlite_vec
 import logging
 
-from test2text.utils.semver import Semver
+from services.utils.semver import Semver
 from .tables import (
     RequirementsTable,
     AnnotationsTable,

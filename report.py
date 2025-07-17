@@ -1,4 +1,4 @@
-from test2text.db import DbClient
+from services.db import DbClient
 from tqdm import tqdm
 
 
