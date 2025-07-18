@@ -1,32 +1,16 @@
-import io
-
 import streamlit as st
-import csv
+
+from services.loaders.index_requirements import index_requirements_from_files
 
 
 def show():
     st.title("Upload a file with requirements.")
 
-    uploaded_files = st.file_uploader("Choose a file with requirements", type="csv")
-
-    for uploaded_file in uploaded_files:
-        try:
-
-            stringio = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
-            reader = csv.reader(stringio)
-            rows = list(reader)
-            # run indexing
-
-            if rows:
-                st.success("CSV file uploaded and parsed successfully!")
-                st.subheader("Extracted Rows:")
-                # Display as a table
-                st.table(rows)
-            else:
-                st.warning("The uploaded CSV file is empty.")
-        except Exception as e:
-            st.error(f"Failed to parse CSV file: {e}")
+    uploaded_files = st.file_uploader("Choose a file with requirements", type="csv", accept_multiple_files=True)
 
     if not uploaded_files:
         st.info("Please upload a *.trace.csv file to extract rows.")
         return False
+
+    index_requirements_from_files(uploaded_files)
+

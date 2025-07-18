@@ -1,19 +1,26 @@
 import csv
-import logging
+import io
 
-logging.basicConfig(level=logging.DEBUG)
+import streamlit as st
+
 from services.db import DbClient
 from services.embeddings.embed import embed_requirements_batch
 
 BATCH_SIZE = 100
 
-if __name__ == "__main__":
+
+def index_requirements_from_files(files: list):
     db = DbClient("./private/requirements.db")
-    # Index requirements
-    with open(
-        "./private/TRACEABILITY MATRIX.csv", newline="", encoding="utf-8", mode="r"
-    ) as csvfile:
-        reader = csv.reader(csvfile)
+
+    for i, file in enumerate(files):
+        st.info(f"Processing file {i + 1}: {file.name}")
+        stringio = io.StringIO(file.getvalue().decode("utf-8"))
+        reader = csv.reader(stringio)
+
+        if not list(reader):
+            st.warning(f"The uploaded CSV file {file.name} is empty.")
+            continue
+
         for _ in range(3):
             next(reader)
         batch = []
@@ -43,4 +50,6 @@ if __name__ == "__main__":
     cursor = db.conn.execute("""
     SELECT COUNT(*) FROM Requirements
     """)
-    print(cursor.fetchone())
+    return cursor.fetchone()
+
+
