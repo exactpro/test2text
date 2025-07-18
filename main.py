@@ -4,8 +4,8 @@ import pages.upload as upload
 
 
 PAGES = {
-    "Annotations Upload": upload.annotations,
-    "Requirements Upload": upload.requirements,
+    "Annotations Upload": upload.annotations.show,
+    "Requirements Upload": upload.requirements.show,
 }
 
 
