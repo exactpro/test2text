@@ -2,19 +2,30 @@
 import streamlit as st
 
 from services.loaders.convert_trace_annos import trace_test_cases_to_annos
+from services.loaders.index_annotations import index_annotations_from_files
 
 
 def show():
     st.title("Upload *.trace.csv file")
 
-    uploaded_files = st.file_uploader("Choose a *.trace.csv file", type="csv", accept_multiple_files=True)
+    st.subheader("1. Choose an action to execute")
+
+    chosen_option = st.radio("Choose an action:", ("Write test_cases and their annotations to database",
+                                                                "Index annotations"))
+    st.subheader("2. Choose *.trace.csv files")
+    uploaded_files = st.file_uploader("Choose files", type="csv", accept_multiple_files=True)
 
     if not uploaded_files:
-        st.info("Please upload a *.trace.csv file to extract rows.")
+        st.info("Please upload a *.trace.csv file to extract annotations.")
         return False
+
+    st.subheader("Get results:")
 
     st.success("CSV file uploaded and parsed successfully!")
 
-    trace_test_cases_to_annos(uploaded_files)
+    if chosen_option == "Index annotations from files":
+        index_annotations_from_files(uploaded_files)
+    else:
+        trace_test_cases_to_annos(uploaded_files)
 
-    #index_annotations_from_files(uploaded_files)  #TODO
+
