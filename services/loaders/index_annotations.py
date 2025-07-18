@@ -8,10 +8,10 @@ from services.embeddings.embed import embed_annotations_batch
 
 BATCH_SIZE = 100
 
+
 def index_annotations_from_files(files: list):
     db = DbClient("./private/requirements.db")
 
-    st.success("CSV file uploaded and parsed successfully!")
     for i, file in enumerate(files):
         st.info(f"Processing file {i + 1}: {file.name}")
         stringio = io.StringIO(file.getvalue().decode("utf-8"))
