@@ -1,6 +1,8 @@
 ## Setup
 
-This project uses UV to manage the virtual environment. To install UV, run the following command:
+This project uses: 
+- python version higher than 3.9 with sqlite version higher than 3.35 with option enable load extentions.
+- UV to manage the virtual environment. To install UV, run the following command:
 
 ```bash
 pip install uv
@@ -90,11 +92,8 @@ erDiagram
 
 ## Usage
 
-1. Add your artifacts to the `private` directory.
-2. Run `index_annotations.py` to index the annotations. It also fills information about the test cases.
-3. Run `index_requirements.py` to index the requirements.
-4. Run `link_reqs_to_annos.py` to find the closest annotations to each requirement and cache this data in 
-   `CasesToAnnos` table.
-5. Create report about the coverage of the requirements by the test cases:
-    - By running your SQL queries in `requirements.db` SQLite database.
-    - Or by running `report.py` script.
+To run UI of this app use following command:
+
+```shell
+streamlit run main.py
+```
