@@ -6,9 +6,9 @@ from test2text.db import DbClient
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def trace_test_cases_to_annos(db_path: Path, trace_file_path: Path, csv_path: Path):
+def trace_test_cases_to_annos(db_path: Path, trace_file_path: Path):
     db = DbClient(db_path)
-    db.case_to_annos.init_table()
+    db.cases_to_annos.init_table()
 
     test_cases = set()
     logger.info("Reading trace file and inserting annotations into table...")
@@ -34,9 +34,8 @@ def trace_test_cases_to_annos(db_path: Path, trace_file_path: Path, csv_path: Pa
 
 if __name__ == '__main__':
     db_path = Path('./private/requirements.db')
-    csv_path = Path('./private/anno_req_min_matches.csv')
     trace_file_path = Path('./private/annotations/stp_0006.Trace.csv')
-    trace_test_cases_to_annos(db_path, trace_file_path, csv_path)
+    trace_test_cases_to_annos(db_path, trace_file_path)
 
 
 
