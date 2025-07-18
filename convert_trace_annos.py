@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 def trace_test_cases_to_annos(db_path: Path, trace_file_path: Path):
     db = DbClient(db_path)
-    db.cases_to_annos.init_table()
 
     test_cases = set()
     logger.info("Reading trace file and inserting annotations into table...")
