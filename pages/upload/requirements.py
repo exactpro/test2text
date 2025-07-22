@@ -14,3 +14,6 @@ def show():
 
     index_requirements_from_files(uploaded_files)
 
+
+if __name__ == "__main__":
+    show()

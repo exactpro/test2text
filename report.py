@@ -1,3 +1,4 @@
+import streamlit as st
 from services.db import DbClient
 from tqdm import tqdm
 
@@ -6,9 +7,8 @@ def add_new_line(summary):
     return summary.replace("\n", "<br>")
 
 
-if __name__ == "__main__":
-    with open("./private/report.html", "w", newline="", encoding="utf-8") as f:
-        f.write("""
+def make_a_report():
+        st.html("""
         <html>
         <head>
             <meta charset="utf-8">
@@ -27,35 +27,35 @@ if __name__ == "__main__":
             "SELECT COUNT(*) FROM Requirements"
         ).fetchone()[0]
 
-        f.write('<nav style="break-after: page;"><h1>Table of Contents</h1><ul>')
+        st.html('<nav style="break-after: page;"><h1>Table of Contents</h1><ul>')
 
         for requirement in tqdm(
-            db.conn.execute("SELECT * FROM Requirements").fetchall(),
-            desc="Generating table of contents",
-            unit="requirements",
-            total=all_reqs_count,
+                db.conn.execute("SELECT * FROM Requirements").fetchall(),
+                desc="Generating table of contents",
+                unit="requirements",
+                total=all_reqs_count,
         ):
             req_id, req_external_id, req_summary, _ = requirement
-            f.write(f"""
+            st.html(f"""
             <li>
                 <a href="#req_{req_id}">
                     Requirement {req_external_id} ({req_id})
                 </a>
             </li>""")
 
-        f.write("</ul></nav>")
+        st.html("</ul></nav>")
 
         data = db.conn.execute("""
         SELECT
             Requirements.id as req_id,
             Requirements.external_id as req_external_id,
             Requirements.summary as req_summary,
-            
+
             Annotations.id as anno_id,
             Annotations.summary as anno_summary,
-            
+
             AnnotationsToRequirements.cached_distance as distance,
-            
+
             TestCases.id as case_id,
             TestCases.test_script as test_script,
             TestCases.test_case as test_case
@@ -83,7 +83,7 @@ if __name__ == "__main__":
             # if written_count > 5:
             #     return
             written_count += 1
-            f.write(f"""
+            st.html(f"""
                                 <section style="break-after: page;">
                                 <h2 id="req_{current_req_id}">Requirement {current_req_external_id} ({current_req_id})</h2>
                                 <p>{add_new_line(req_summary)}</p>
@@ -91,14 +91,14 @@ if __name__ == "__main__":
                                 <ul>
                                 """)
             for anno_id, (anno_summary, distance) in current_annotations.items():
-                f.write(
+                st.html(
                     f"<li>Annotation {anno_id} (distance: {distance:.3f}): <p>{add_new_line(anno_summary)}</p></li>"
                 )
-            f.write("</ul>")
-            f.write("<h3>Test Scripts</h3><ul>")
+            st.html("</ul>")
+            st.html("<h3>Test Scripts</h3><ul>")
             for test_script in current_test_scripts:
-                f.write(f"<li>{test_script}</li>")
-            f.write("</ul></section>")
+                st.html(f"<li>{test_script}</li>")
+            st.html("</ul></section>")
 
         for row in data.fetchall():
             (
@@ -123,9 +123,10 @@ if __name__ == "__main__":
             current_annotations[anno_id] = (anno_summary, distance)
             current_test_scripts.add(test_script)
         write_requirement()
-        f.write("""
+        st.html("""
         </article>
         </main>
         </body>
         </html>
         """)
+
