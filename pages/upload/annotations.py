@@ -10,7 +10,7 @@ def show():
 
     st.subheader("1. Choose an action to execute")
 
-    chosen_option = st.radio("Choose an action:", ("Write test_cases and their annotations to database",
+    chosen_option = st.selectbox("Choose an action:", ("Write test cases and their annotations to database",
                                                                 "Index annotations"))
     st.subheader("2. Choose *.trace.csv files")
     uploaded_files = st.file_uploader("Choose files", type="csv", accept_multiple_files=True)
@@ -29,3 +29,5 @@ def show():
         trace_test_cases_to_annos(uploaded_files)
 
 
+if __name__ == "__main__":
+    show()
