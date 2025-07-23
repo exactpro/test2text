@@ -6,7 +6,7 @@ from services.loaders.index_annotations import index_annotations_from_files
 
 
 def show():
-    st.title("Upload *.trace.csv file")
+    st.header("Upload *.trace.csv file")
 
     st.subheader("1. Choose an action to execute")
 

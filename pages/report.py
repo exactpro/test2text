@@ -1,49 +1,26 @@
 import streamlit as st
 from services.db import DbClient
-from tqdm import tqdm
 
 
 def add_new_line(summary):
     return summary.replace("\n", "<br>")
 
+# Data structure to store pages
+pages = {}
+
+def add_page(page_name):
+    pages[page_name] = ""
+
 
 def make_a_report():
-        st.html("""
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <link rel="stylesheet" href="../resources/typography.css">
-            <title>Test2Text Report</title>
-        </head>
-        <body>
-        <main style="padding: 1rem;">
-            <article class="prose prose-sm container" 
-                     style="max-width: 48rem; margin: 0 auto;">
-        """)
+        st.header("Test2Text Report")
 
         db = DbClient("./private/requirements.db")
         all_reqs_count = db.conn.execute(
             "SELECT COUNT(*) FROM Requirements"
         ).fetchone()[0]
 
-        st.html('<nav style="break-after: page;"><h1>Table of Contents</h1><ul>')
-
-        for requirement in tqdm(
-                db.conn.execute("SELECT * FROM Requirements").fetchall(),
-                desc="Generating table of contents",
-                unit="requirements",
-                total=all_reqs_count,
-        ):
-            req_id, req_external_id, req_summary, _ = requirement
-            st.html(f"""
-            <li>
-                <a href="#req_{req_id}">
-                    Requirement {req_external_id} ({req_id})
-                </a>
-            </li>""")
-
-        st.html("</ul></nav>")
+        st.subheader("Table of Contents")
 
         data = db.conn.execute("""
         SELECT
@@ -72,35 +49,30 @@ def make_a_report():
         current_req_id = None
         current_annotations = {}
         current_test_scripts = set()
-        progress_bar = tqdm(
-            total=all_reqs_count, desc="Generating report", unit="requirements"
-        )
-
-        written_count = 0
 
         def write_requirement():
-            global written_count
-            # if written_count > 5:
-            #     return
-            written_count += 1
-            st.html(f"""
-                                <section style="break-after: page;">
+            with st.expander(f"#{req_id} Requirement {req_external_id}"):
+                st.html(f"""
                                 <h2 id="req_{current_req_id}">Requirement {current_req_external_id} ({current_req_id})</h2>
                                 <p>{add_new_line(req_summary)}</p>
                                 <h3>Annotations</h3>
                                 <ul>
                                 """)
-            for anno_id, (anno_summary, distance) in current_annotations.items():
-                st.html(
-                    f"<li>Annotation {anno_id} (distance: {distance:.3f}): <p>{add_new_line(anno_summary)}</p></li>"
-                )
-            st.html("</ul>")
-            st.html("<h3>Test Scripts</h3><ul>")
-            for test_script in current_test_scripts:
-                st.html(f"<li>{test_script}</li>")
-            st.html("</ul></section>")
-
-        for row in data.fetchall():
+                for anno_id, (anno_summary, distance) in current_annotations.items():
+                    st.html(
+                        f"<li>Annotation {anno_id} (distance: {distance:.3f}): <p>{add_new_line(anno_summary)}</p></li>"
+                    )
+                st.html("</ul>")
+                st.html("<h3>Test Scripts</h3><ul>")
+                for test_script in current_test_scripts:
+                    st.html(f"<li>{test_script}</li>")
+                st.html("</ul>")
+        progress_bar = st.progress(0, "Processing...")
+        if not data.fetchall():
+            st.error("There is no data to inspect.\nPlease upload annotations.")
+            return None
+        max_progress = len(data.fetchall())
+        for i, row in enumerate(data.fetchall()):
             (
                 req_id,
                 req_external_id,
@@ -119,14 +91,12 @@ def make_a_report():
                 current_req_external_id = req_external_id
                 current_annotations = {}
                 current_test_scripts = set()
-                progress_bar.update(1)
+            progress_bar.progress(round(i*100/max_progress))
             current_annotations[anno_id] = (anno_summary, distance)
             current_test_scripts.add(test_script)
         write_requirement()
-        st.html("""
-        </article>
-        </main>
-        </body>
-        </html>
-        """)
 
+
+
+if __name__ == "__main__":
+    make_a_report()
