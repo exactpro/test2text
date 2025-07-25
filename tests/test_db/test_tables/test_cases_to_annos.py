@@ -1,5 +1,5 @@
 from unittest import TestCase
-from services.db.client import DbClient
+from test2text.services.db.client import DbClient
 
 
 class TestCasesToAnnosTable(TestCase):
