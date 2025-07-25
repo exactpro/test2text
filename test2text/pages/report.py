@@ -5,20 +5,11 @@ from test2text.services.db import DbClient
 def add_new_line(summary):
     return summary.replace("\n", "<br>")
 
-# Data structure to store pages
-pages = {}
-
-def add_page(page_name):
-    pages[page_name] = ""
-
 
 def make_a_report():
         st.header("Test2Text Report")
 
         db = DbClient("./private/requirements.db")
-        all_reqs_count = db.conn.execute(
-            "SELECT COUNT(*) FROM Requirements"
-        ).fetchone()[0]
 
         st.subheader("Table of Contents")
 
@@ -67,6 +58,7 @@ def make_a_report():
                 for test_script in current_test_scripts:
                     st.html(f"<li>{test_script}</li>")
                 st.html("</ul>")
+
         progress_bar = st.progress(0, "Processing...")
         if not data.fetchall():
             st.error("There is no data to inspect.\nPlease upload annotations.")
@@ -95,7 +87,6 @@ def make_a_report():
             current_annotations[anno_id] = (anno_summary, distance)
             current_test_scripts.add(test_script)
         write_requirement()
-
 
 
 if __name__ == "__main__":
