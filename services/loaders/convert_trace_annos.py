@@ -20,7 +20,7 @@ def trace_test_cases_to_annos(trace_files: list):
     st.info("Reading trace files and inserting annotations into table...")
     for i, file in enumerate(trace_files):
         stringio = io.StringIO(file.getvalue().decode("utf-8"))
-        reader = csv.DictReader(stringio)
+        reader = csv.reader(stringio)
         current_tc = EMPTY
         concat_summary = EMPTY
         test_script = EMPTY

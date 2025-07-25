@@ -24,7 +24,7 @@ if __name__ == "__main__":
     st.set_page_config(page_title="📑 Test2Text App", layout="wide", initial_sidebar_state="auto")
     add_logo()
 
-    annotations = st.Page("pages/upload/annotations.py", title="Annotations", icon=":material/database_upload")
+    annotations = st.Page("pages/upload/annotations.py", title="Annotations", icon=":material/database_upload:")
     requirements = st.Page("pages/upload/requirements.py", title="Requirements", icon=":material/database_upload:")
     report = st.Page("pages/report.py", title="Report", icon=":material/publish:")
     visualization = st.Page("services/visualisation/visualize_vectors.py", title="Visualize vectors", icon=":material/dataset:")
