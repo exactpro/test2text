@@ -1,7 +1,8 @@
 import logging
 import csv
-from pathlib import Path
-from test2text.db import DbClient
+import io
+import streamlit as st
+from test2text.services.db import DbClient
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -13,23 +14,23 @@ def is_empty(value):
     return True if value == EMPTY else False
 
 
-def trace_test_cases_to_annos(db_path: Path, trace_file_path: Path):
-    db = DbClient(db_path)
+def trace_test_cases_to_annos(trace_files: list):
+    db = DbClient('./private/requirements.db')
 
-    insertions = list()
-    logger.info("Reading trace file and inserting annotations into table...")
-    with open(trace_file_path, mode='r', newline='', encoding='utf-8') as trace_file:
-        reader = csv.reader(trace_file)
+    st.info("Reading trace files and inserting annotations into table...")
+    for i, file in enumerate(trace_files):
+        stringio = io.StringIO(file.getvalue().decode("utf-8"))
+        reader = csv.reader(stringio)
         current_tc = EMPTY
         concat_summary = EMPTY
         test_script = EMPTY
         global_columns = next(reader)
+        insertions = list()
         for row in reader:
             if row[0] == "TestCaseStart":
                 current_tc = row[1]
                 test_script = EMPTY
                 concat_summary = EMPTY
-                next(reader)
             elif row[0] == "Summary":
                 continue
             elif row[0] == "TestCaseEnd":
@@ -44,15 +45,11 @@ def trace_test_cases_to_annos(db_path: Path, trace_file_path: Path):
                     if is_empty(test_script) and not is_empty(row[global_columns.index("TestScript")]):
                         test_script = row[global_columns.index("TestScript")]
                     concat_summary += row[0]
+        st.write(f"File {file.name}: Inserted {len(insertions)} testcase-annotations pairs to database. Successful: {sum(insertions)}.")
 
     db.conn.commit()
-    logger.info(f"Inserted {len(insertions)} testcase-annotations pairs to database. Successful: {sum(insertions)}")
 
 
-if __name__ == '__main__':
-    db_path = Path('./private/requirements.db')
-    trace_file_path = Path('./private/annotations/stp_0006.Trace.csv')
-    trace_test_cases_to_annos(db_path, trace_file_path)
 
 
 

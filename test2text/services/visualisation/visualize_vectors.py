@@ -4,8 +4,8 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 from sklearn.manifold import TSNE
-from services.utils.sqlite_vec import unpack_float32
-from services.db import DbClient
+from test2text.services.utils.sqlite_vec import unpack_float32
+from test2text.services.db import DbClient
 
 FIG_SIZE = (8, 6)
 FONT_SIZE = 18

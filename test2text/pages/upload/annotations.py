@@ -1,8 +1,8 @@
 
 import streamlit as st
 
-from services.loaders.convert_trace_annos import trace_test_cases_to_annos
-from services.loaders.index_annotations import index_annotations_from_files
+from test2text.services.loaders.convert_trace_annos import trace_test_cases_to_annos
+from test2text.services.loaders.index_annotations import index_annotations_from_files
 
 
 def show():

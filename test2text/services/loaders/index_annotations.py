@@ -3,8 +3,8 @@ import io
 
 import streamlit as st
 
-from services.db import DbClient
-from services.embeddings.embed import embed_annotations_batch
+from test2text.services.db import DbClient
+from test2text.services.embeddings.embed import embed_annotations_batch
 
 BATCH_SIZE = 100
 

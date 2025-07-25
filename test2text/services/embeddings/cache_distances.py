@@ -2,7 +2,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
-from services.db import DbClient
+from test2text.services.db import DbClient
 
 if __name__ == "__main__":
     db = DbClient("./private/requirements.db")

@@ -1,5 +1,5 @@
 import streamlit as st
-from services.db import DbClient
+from test2text.services.db import DbClient
 
 
 def add_new_line(summary):

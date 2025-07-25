@@ -1,6 +1,6 @@
 import streamlit as st
 
-from services.loaders.index_requirements import index_requirements_from_files
+from test2text.services.loaders.index_requirements import index_requirements_from_files
 
 
 def show():
