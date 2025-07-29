@@ -13,11 +13,22 @@ EMPTY = ""
 def is_empty(value):
     return True if value == EMPTY else False
 
+def write_table_row(*args, **kwargs):
+    count = len(args)
+    if count == 0:
+        return False
+    columns = st.columns(count)
+    for i, col in enumerate(columns):
+        with col:
+            st.write(args[i])
+    return True
+
 
 def trace_test_cases_to_annos(trace_files: list):
     db = DbClient('./private/requirements.db')
 
-    st.info("Reading trace files and inserting annotations into table...")
+    st.info("Reading trace files and inserting test case + annotations pairs into database...")
+    write_table_row("File name", "Extracted pairs test cases + annotations", "Inserted to data base", "Ignored (dublicates or wrong id)")
     for i, file in enumerate(trace_files):
         stringio = io.StringIO(file.getvalue().decode("utf-8"))
         reader = csv.reader(stringio)
@@ -45,9 +56,10 @@ def trace_test_cases_to_annos(trace_files: list):
                     if is_empty(test_script) and not is_empty(row[global_columns.index("TestScript")]):
                         test_script = row[global_columns.index("TestScript")]
                     concat_summary += row[0]
-        st.write(f"File {file.name}: Inserted {len(insertions)} testcase-annotations pairs to database. Successful: {sum(insertions)}.")
+        write_table_row(file.name, len(insertions), sum(insertions), len(insertions) - sum(insertions))
 
     db.conn.commit()
+    db.conn.close()
 
 
 

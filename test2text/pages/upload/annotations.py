@@ -6,27 +6,30 @@ from test2text.services.loaders.index_annotations import index_annotations_from_
 
 
 def show():
-    st.header("Upload *.trace.csv file")
+    with st.form("Upload *.trace.csv file"):
+        st.header("Upload *.trace.csv file")
 
-    st.subheader("1. Choose an action to execute")
+        st.subheader("1. Choose an action to execute")
 
-    chosen_option = st.selectbox("Choose an action:", ("Write test cases and their annotations to database",
-                                                                "Index annotations"))
-    st.subheader("2. Choose *.trace.csv files")
-    uploaded_files = st.file_uploader("Choose files", type="csv", accept_multiple_files=True)
+        chosen_option = st.selectbox("Choose an action:", ("Write test cases and their annotations to database",
+                                                                    "Index annotations"))
+        st.subheader("2. Choose *.trace.csv files")
+        uploaded_files = st.file_uploader("Choose files", type="csv", accept_multiple_files=True)
 
-    if not uploaded_files:
-        st.info("Please upload a *.trace.csv file to extract annotations.")
-        return False
+        if not uploaded_files:
+            st.info("Please upload a *.trace.csv file to extract annotations.")
+            submitted = st.form_submit_button("Start")
+            return False
 
-    st.subheader("Get results:")
+        st.success("CSV file uploaded successfully!")
+        submitted = st.form_submit_button("Start")
 
-    st.success("CSV file uploaded and parsed successfully!")
-
-    if chosen_option == "Index annotations from files":
-        index_annotations_from_files(uploaded_files)
-    else:
-        trace_test_cases_to_annos(uploaded_files)
+    if submitted:
+        st.subheader("Results:")
+        if chosen_option == "Index annotations":
+            index_annotations_from_files(uploaded_files)
+        else:
+            trace_test_cases_to_annos(uploaded_files)
 
 
 if __name__ == "__main__":
