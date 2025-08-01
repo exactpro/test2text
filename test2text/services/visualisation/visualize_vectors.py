@@ -94,7 +94,7 @@ def plot_2_sets_in_one_3d(first_set_of_vec, second_set_of_vec, first_title, seco
             y=first_set_of_vec[:, 1],
             z=first_set_of_vec[:, 2],
             mode='markers',
-            name={first_title}
+            name=first_title
         ))
 
     fig.add_trace(go.Scatter3d(
@@ -102,7 +102,7 @@ def plot_2_sets_in_one_3d(first_set_of_vec, second_set_of_vec, first_title, seco
             y=second_set_of_vec[:, 1],
             z=second_set_of_vec[:, 2],
             mode='markers',
-            name={second_title},
+            name=second_title,
         ))
 
     fig.update_layout(
