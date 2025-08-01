@@ -8,9 +8,15 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
+    "einops>=0.8.1",
     "matplotlib>=3.9.4",
+    "sentence-transformers>=4.0.1",
     "sqlite-vec>=0.1.6",
-    "tabbyset>=1.0.0"
+    "tabbyset>=1.0.0",
+    "streamlit>=1.47.0",
+    "blinker>=1.9.0",
+    "google>=3.0.0",
+    "plotly>=6.2.0",
 ]
 
 [dependency-groups]
