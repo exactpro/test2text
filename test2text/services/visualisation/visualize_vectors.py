@@ -164,6 +164,7 @@ if __name__ == "__main__":
 
         plot_2_sets_in_one_2d(reqs_vectors_2d, anno_vectors_2d, "Requerements", "Annotations")
         progress_bar.progress(100, "Minifolded and Plotted in 2D")
+    db.conn.close()
 
 
 

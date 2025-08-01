@@ -36,6 +36,7 @@ def show_distances_histogram(db_path):
 
     fig = px.histogram(distances, nbins=100, title="Distances histogram")
     st.plotly_chart(fig)
+    db.conn.close()
 
 
 if __name__ == "__main__":
