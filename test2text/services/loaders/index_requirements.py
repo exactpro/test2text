@@ -21,6 +21,10 @@ def index_requirements_from_files(files: list):
             st.warning(f"The uploaded CSV file {file.name} is empty.")
             continue
 
+        if len(list(reader)) <= 3:
+            st.warning(f"The uploaded CSV file {file.name}'s content is too short. There are only {len(list(reader))} lines.")
+            continue
+
         for _ in range(3):
             next(reader)
         batch = []
