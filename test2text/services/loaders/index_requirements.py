@@ -17,12 +17,9 @@ def index_requirements_from_files(files: list):
         stringio = io.StringIO(file.getvalue().decode("utf-8"))
         reader = csv.reader(stringio)
 
-        if not list(reader):
-            st.warning(f"The uploaded CSV file {file.name} is empty.")
-            continue
-
         if len(list(reader)) <= 3:
-            st.warning(f"The uploaded CSV file {file.name}'s content is too short. There are only {len(list(reader))} lines.")
+            st.warning(f"The uploaded CSV file {file.name}'s content is too short. "
+                       f"There are {len(list(reader))} lines inside.")
             continue
 
         for _ in range(3):
