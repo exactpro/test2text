@@ -1,5 +1,10 @@
-
 import streamlit as st
+
+from test2text.pages.upload.annotations import  show_annotations
+from test2text.pages.upload.requirements import  show_requirements
+from test2text.services.embeddings.cache_distances import show_distances_histogram
+from test2text.pages.report import make_a_report
+from test2text.services.visualisation.visualize_vectors import  visualize_vectors
 
 
 def add_logo():
@@ -30,15 +35,15 @@ if __name__ == "__main__":
     st.set_page_config(page_title="Test2Text App", layout="wide", initial_sidebar_state="auto")
     add_logo()
 
-    annotations = st.Page("test2text/pages/upload/annotations.py",
+    annotations = st.Page(show_annotations,
                           title="Annotations", icon=":material/database_upload:")
-    requirements = st.Page("test2text/pages/upload/requirements.py",
+    requirements = st.Page(show_requirements,
                            title="Requirements", icon=":material/database_upload:")
-    cache_distances = st.Page("test2text/services/embeddings/cache_distances.py",
+    cache_distances = st.Page(show_distances_histogram,
                               title="Cache Distances", icon=":material/cached:")
-    report = st.Page("test2text/pages/report.py",
+    report = st.Page(make_a_report,
                      title="Report", icon=":material/publish:")
-    visualization = st.Page("test2text/services/visualisation/visualize_vectors.py",
+    visualization = st.Page(visualize_vectors,
                             title="Visualize Vectors", icon=":material/dataset:")
     pages = {
         "Upload": [annotations, requirements],

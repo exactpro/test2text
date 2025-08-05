@@ -4,7 +4,7 @@ import plotly.express as px
 from test2text.services.db import DbClient
 
 
-def show_distances_histogram(db_path):
+def show_distances_histogram(db_path="./private/requirements.db"):
     st.subheader("Distances between annotations and requirements")
     db = DbClient(db_path)
     db.annos_to_reqs.recreate_table()

@@ -3,7 +3,7 @@ import streamlit as st
 
 
 
-def show():
+def show_annotations():
     with st.form("Upload *.trace.csv file"):
         st.header("Upload *.trace.csv file")
 
@@ -33,4 +33,4 @@ def show():
 
 
 if __name__ == "__main__":
-    show()
+    show_annotations()

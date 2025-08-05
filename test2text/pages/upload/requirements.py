@@ -1,7 +1,7 @@
 import streamlit as st
 
 
-def show():
+def show_requirements():
     st.title("Upload a file with requirements")
 
     uploaded_files = st.file_uploader("Choose a file with requirements", type="csv", accept_multiple_files=True)
@@ -15,4 +15,4 @@ def show():
 
 
 if __name__ == "__main__":
-    show()
+    show_requirements()

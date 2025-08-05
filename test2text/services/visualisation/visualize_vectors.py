@@ -116,9 +116,9 @@ def plot_2_sets_in_one_3d(first_set_of_vec, second_set_of_vec, first_title, seco
     st.plotly_chart(fig)
 
 
-if __name__ == "__main__":
+def visualize_vectors(db_path="./private/requirements.db"):
     st.header("Visualizing vectors")
-    db = DbClient("./private/requirements.db")
+    db = DbClient(db_path)
     Req_tab, Anno_tab, Req_Anno_tab = st.tabs(["Requirements", "Annotations", "Requirements vs Annotations"])
     with Req_tab:
         st.subheader("Requirements vectors")
@@ -154,7 +154,7 @@ if __name__ == "__main__":
         # Show how these 2 groups of vectors are different
         st.subheader("Requirements vs Annotations")
         progress_bar = st.progress(40, "Extracted")
-        plot_2_sets_in_one_2d(reqs_vectors_2d, anno_vectors_2d,"Requerements", "Annotations")
+        plot_2_sets_in_one_2d(reqs_vectors_2d, anno_vectors_2d, "Requerements", "Annotations")
         progress_bar.progress(60, "Plotted in 2D")
 
         plot_2_sets_in_one_3d(reqs_vectors_3d, anno_vectors_3d, "Requerements", "Annotations")
@@ -166,5 +166,7 @@ if __name__ == "__main__":
         progress_bar.progress(100, "Minifolded and Plotted in 2D")
     db.conn.close()
 
+if __name__ == "__main__":
+    visualize_vectors("./private/requirements.db")
 
 
