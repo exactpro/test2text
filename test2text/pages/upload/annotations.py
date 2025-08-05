@@ -1,8 +1,6 @@
 
 import streamlit as st
 
-from test2text.services.loaders.convert_trace_annos import trace_test_cases_to_annos
-from test2text.services.loaders.index_annotations import index_annotations_from_files
 
 
 def show():
@@ -27,8 +25,10 @@ def show():
     if submitted:
         st.subheader("Results:")
         if chosen_option == "Index annotations":
+            from test2text.services.loaders.index_annotations import index_annotations_from_files
             index_annotations_from_files(uploaded_files)
         else:
+            from test2text.services.loaders.convert_trace_annos import trace_test_cases_to_annos
             trace_test_cases_to_annos(uploaded_files)
 
 
