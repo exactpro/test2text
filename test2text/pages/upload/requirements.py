@@ -1,7 +1,5 @@
 import streamlit as st
 
-from test2text.services.loaders.index_requirements import index_requirements_from_files
-
 
 def show():
     st.title("Upload a file with requirements")
@@ -11,7 +9,8 @@ def show():
     if not uploaded_files:
         st.info("Please upload a *.trace.csv file to extract rows.")
         return False
-
+    
+    from test2text.services.loaders.index_requirements import index_requirements_from_files
     index_requirements_from_files(uploaded_files)
 
 
