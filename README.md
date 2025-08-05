@@ -97,3 +97,9 @@ To run UI of this app use following command:
 ```shell
 streamlit run main.py
 ```
+
+For running first time use following command to install dependencies if necessary
+
+```shell
+uv run streamlit run main.py
+```
