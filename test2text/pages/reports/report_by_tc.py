@@ -168,7 +168,8 @@ def make_a_tc_report():
             for (tc_id, test_script, test_case), group in groupby(rows, lambda x: x[0:3]):
                 st.divider()
                 with st.container():
-                    st.subheader(f"Inspect #{tc_id} Test case {test_case}")
+                    st.subheader(f"Inspect #{tc_id} Test case '{test_case}'")
+                    st.write(f"From test script {test_script}")
                     current_annotations = dict()
                     for _, _, _, anno_id, anno_summary, anno_embedding, distance, req_id, req_external_id, req_summary, req_embedding in group:
                         current_annotation = (anno_id, anno_summary, anno_embedding)
@@ -189,7 +190,7 @@ def make_a_tc_report():
                                 }
                                 </style>
                             """, unsafe_allow_html=True)
-                            reqs_by_anno = {f"#{anno_id} Annotation {anno_summary}": (anno_id, anno_summary, anno_embedding) for (anno_id, anno_summary, anno_embedding) in current_annotations.keys()}
+                            reqs_by_anno = {f"#{anno_id} Annotation '{anno_summary}'": (anno_id, anno_summary, anno_embedding) for (anno_id, anno_summary, anno_embedding) in current_annotations.keys()}
                             radio_choice = st.radio("", reqs_by_anno.keys(), key="radio_choice")
                         if radio_choice:
                             with anno:
