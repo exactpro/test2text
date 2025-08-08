@@ -1,10 +1,11 @@
 import streamlit as st
 
+from test2text.pages.documentation import show_documentation
 from test2text.pages.upload.annotations import  show_annotations
 from test2text.pages.upload.requirements import  show_requirements
 from test2text.services.embeddings.cache_distances import show_distances_histogram
-from test2text.pages.report_by_req import make_a_report
-from test2text.pages.report_by_tc import make_a_tc_report
+from test2text.pages.reports.report_by_req import make_a_report
+from test2text.pages.reports.report_by_tc import make_a_tc_report
 from test2text.services.visualisation.visualize_vectors import  visualize_vectors
 
 
@@ -36,6 +37,9 @@ if __name__ == "__main__":
     st.set_page_config(page_title="Test2Text App", layout="wide", initial_sidebar_state="auto")
     add_logo()
 
+    about = st.Page(show_documentation,
+                          title="About application", icon=":material/info:")
+
     annotations = st.Page(show_annotations,
                           title="Annotations", icon=":material/database_upload:")
     requirements = st.Page(show_requirements,
@@ -49,6 +53,7 @@ if __name__ == "__main__":
     visualization = st.Page(visualize_vectors,
                             title="Visualize Vectors", icon=":material/dataset:")
     pages = {
+        "Home": [about],
         "Upload": [annotations, requirements],
         "Update": [cache_distances],
         "Inspect": [report_by_req, report_by_tc, visualization],
