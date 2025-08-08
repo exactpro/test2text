@@ -4,17 +4,13 @@ import streamlit as st
 
 from test2text.services.db import DbClient
 from test2text.services.utils import unpack_float32
-from test2text.services.visualisation.visualize_vectors import minifold_vectors_2d, plot_vectors_2d
+from test2text.services.visualisation.visualize_vectors import minifold_vectors_2d, plot_vectors_2d, \
+    plot_2_sets_in_one_2d
 
 
- 
 def make_a_report():
-
-    st.header("Test2Text Report")
-
-
     db = DbClient("./private/requirements.db")
-
+    st.header("Test2Text Report")
 
     def write_annotations(current_annotations: set[tuple]):
         anno, summary, dist = st.columns(3)
@@ -91,6 +87,7 @@ def make_a_report():
         )
 
         if option:
+
             clause = "Requirements.id = ?"
             if clause in where_clauses:
                 idx = where_clauses.index(clause)
@@ -98,9 +95,39 @@ def make_a_report():
             else:
                 where_clauses.append(clause)
                 params.append(requirements_dict[option])
+
+            st.subheader("Filter Test cases")
+
+            with st.expander("🔍 Filters"):
+                radius, limit = st.columns(2)
+                with radius:
+                    filter_radius = st.number_input("Insert a radius",
+                                                    value=0.00,
+                                                    step=0.01,
+                                                    key="filter_radius")
+                    st.info("Max distance to annotation")
+                with limit:
+                    filter_limit = st.number_input(
+                        "Test case limit to show",
+                        min_value=1,
+                        max_value=15,
+                        value=15,
+                        step=1,
+                        key="filter_limit"
+                    )
+                    st.info("Limit of selected test cases")
+
+            if filter_radius:
+                where_clauses.append("distance >= ?")
+                params.append(f"{filter_radius}")
+
+            if filter_limit:
+                params.append(f"{filter_limit}")
+
             where_sql = ""
             if where_clauses:
                 where_sql = f"WHERE {' AND '.join(where_clauses)}"
+
 
             sql = f"""
                 SELECT
@@ -127,27 +154,18 @@ def make_a_report():
                 {where_sql}
                 ORDER BY
                     Requirements.id, AnnotationsToRequirements.cached_distance, TestCases.id
+                LIMIT ?
                 """
-
+            data = db.conn.execute(sql, params)
             rows = data.fetchall()
             if not rows:
                 st.error("There is no data to inspect.\n"
                          "Please upload annotations and requirements.")
                 return None
 
-            st.subheader("Filter Test cases")
-
-            with st.expander("🔍 Filters"):
-                radius, limit = st.columns(2)
-                with radius:
-                    filter_radius = st.number_input("Insert a radius", key="filter_radius")
-                    st.info("Max distance to annotation")
-                with limit:
-                    filter_limit = st.text_input("Limit", value="", key="filter_limit")
-                    st.info("Limit of selected test cases")
 
             for (req_id, req_external_id, req_summary, req_embedding), group in groupby(rows, lambda x: x[0:4]):
-                with st.container(border=True):
+                with st.container():
                     st.subheader(f" Inspect Requirement {req_external_id}")
                     st.write(req_summary)
                     current_test_cases = dict()
@@ -178,9 +196,16 @@ def make_a_report():
 
                             with viz:
                                 with st.container(border=True):
-                                    pass
-                                    #req_dot = np.array(unpack_float32(req_embedding)) TODO
-                                    #plot_vectors_2d(minifold_vectors_2d(np.array([req_dot])), "Requirements")
+                                    req_dot = np.array(unpack_float32(req_embedding))
+                                    anno_embeddings = [
+                                        unpack_float32(anno_emb)
+                                        for _, _, anno_emb,_ in current_test_cases[st.session_state["radio_choice"]]
+                                    ]
+
+                                    anno_embeddings_np = np.array(anno_embeddings)
+                                    plot_2_sets_in_one_2d(minifold_vectors_2d(np.array([req_dot])),
+                                                          minifold_vectors_2d(anno_embeddings_np),
+                                                          "Requirements", "Annotations", first_color="red", second_color="green")
 
     db.conn.close()
  
