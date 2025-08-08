@@ -165,6 +165,7 @@ def make_a_report():
 
 
             for (req_id, req_external_id, req_summary, req_embedding), group in groupby(rows, lambda x: x[0:4]):
+                st.divider()
                 with st.container():
                     st.subheader(f" Inspect Requirement {req_external_id}")
                     st.write(req_summary)
