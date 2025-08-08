@@ -53,7 +53,18 @@ def extract_requirement_vectors(db: DbClient):
 
 
 def minifold_vectors_2d(vectors: np.array):
-    tsne = TSNE(n_components=2, random_state=0)
+    """
+    Reduces high-dimensional vectors to 2D using TSNE.
+    Handles cases where the number of samples is too small for TSNE by returning the input as-is.
+    """
+    n_samples = vectors.shape[0]
+    # TSNE requires perplexity < n_samples
+    if n_samples < 2:
+        # Not enough samples for TSNE, just return the original (reshaped to 2D if needed)
+        return vectors.reshape(n_samples, -1)[:, :2]
+    # Set perplexity to a safe value
+    perplexity = min(30, max(1, (n_samples - 1) // 3))
+    tsne = TSNE(n_components=2, random_state=0, perplexity=perplexity)
     vectors_2d = tsne.fit_transform(vectors)
     return vectors_2d
 
@@ -79,10 +90,16 @@ def plot_vectors_3d(vectors_3d: np.array, title):
     st.plotly_chart(fig, use_container_width=True)
 
 
-def plot_2_sets_in_one_2d(first_set_of_vec, second_set_of_vec, first_title, second_title):
+def plot_2_sets_in_one_2d(first_set_of_vec, second_set_of_vec, first_title, second_title, first_color="blue", second_color="green"):
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=first_set_of_vec[:, 0], y=first_set_of_vec[:, 1], mode='markers', name={first_title}))
-    fig.add_trace(go.Scatter(x=second_set_of_vec[:, 0], y=second_set_of_vec[:, 1], mode='markers', name={second_title}))
+    fig.add_trace(go.Scatter(x=first_set_of_vec[:, 0], y=first_set_of_vec[:, 1],
+                             mode='markers',
+                             name=first_title,
+                             marker=dict(color=f"{first_color}")))
+    fig.add_trace(go.Scatter(x=second_set_of_vec[:, 0], y=second_set_of_vec[:, 1],
+                             mode='markers',
+                             name=second_title,
+                             marker=dict(color=f"{second_color}")))
     fig.update_layout(title=f"{first_title} vs {second_title}",
                       xaxis_title='X', yaxis_title='Y')
     st.plotly_chart(fig)
