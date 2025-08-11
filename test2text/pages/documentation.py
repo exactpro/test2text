@@ -50,12 +50,12 @@ def show_documentation():
                     ---
                 
                     ## Usage Tips
-                
-                    - Use filters and search for quick access to the information you need.
+                    
+                    - Upload annotations and requirements to the app's database. 
                     - Link test cases with requirements via annotations for better coverage analysis.
+                    - Use filters and search for quick access to the information you need.
                     - Regularly review reports to monitor the quality of your tests.
                     - Refer to the "Documentation" page for help on using the application.
                 
-                    ---
                 """
     )

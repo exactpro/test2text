@@ -160,8 +160,8 @@ def make_a_tc_report():
             data = db.conn.execute(sql, params)
             rows = data.fetchall()
             if not rows:
-                st.error("There is no data to inspect.\n"
-                         "Please upload annotations and requirements.")
+                st.error("There is no requested data to inspect.\n"
+                         "Please check filters, completeness of the data or upload new annotations and requirements.")
                 return None
 
 
