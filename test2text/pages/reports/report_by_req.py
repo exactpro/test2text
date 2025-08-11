@@ -178,22 +178,25 @@ def make_a_report():
                     t_cs, anno, viz = st.columns(3)
                     with t_cs:
                         with st.container(border=True):
+                            st.write("Test Cases")
+                            st.info("Test cases of chosen Requirement")
+                            st.radio("Test cases name", current_test_cases.keys(), key="radio_choice")
                             st.markdown("""
-                                <style>
-                                .stRadio > div {
-                                    max-width: 350px;
-                                    word-break: break-word;
-                                    white-space: pre-line;
-                                }
-                                </style>
-                            """, unsafe_allow_html=True)
-                            st.radio("Test Cases", current_test_cases.keys(), key="radio_choice")
+                                            <style>
+                                                   .stRadio > div {
+                                                                max-width: 350px;
+                                                                word-break: break-word;
+                                                                white-space: pre-line;
+                                                                }
+                                            </style>
+                                        """, unsafe_allow_html=True)
+
                         if st.session_state["radio_choice"]:
                             with anno:
                                 with st.container(border=True):
-                                    st.write("Annotations for chosen test case")
+                                    st.write("Annotations")
+                                    st.info("List of Annotations for chosen Test case")
                                     write_annotations(current_annotations=current_test_cases[st.session_state["radio_choice"]])
-
                             with viz:
                                 with st.container(border=True):
                                     st.write("Visualization")

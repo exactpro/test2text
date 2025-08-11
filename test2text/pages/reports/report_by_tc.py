@@ -180,23 +180,26 @@ def make_a_tc_report():
                     t_cs, anno, viz = st.columns(3)
                     with t_cs:
                         with st.container(border=True):
-                            st.markdown("""
-                                <style>
-                                .stRadio > div {
-                                    max-width: 350px;
-                                    word-break: break-word;
-                                    white-space: pre-line;
-                                }
-                                </style>
-                            """, unsafe_allow_html=True)
+                            st.write("Annotations")
+                            st.info("Annotations linked to chosen Test case")
                             reqs_by_anno = {f"#{anno_id} Annotation '{anno_summary}'": (anno_id, anno_summary, anno_embedding) for (anno_id, anno_summary, anno_embedding) in current_annotations.keys()}
-                            radio_choice = st.radio("", reqs_by_anno.keys(), key="radio_choice")
+                            radio_choice = st.radio("Annotation's id + summary", reqs_by_anno.keys(), key="radio_choice")
+                            st.markdown("""
+                                           <style>
+                                                  .stRadio > div {
+                                                               max-width: 350px;
+                                                               word-break: break-word;
+                                                               white-space: pre-line;
+                                                           }
+                                                  </style>
+                                       """, unsafe_allow_html=True)
+
                         if radio_choice:
                             with anno:
                                 with st.container(border=True):
                                     st.write("Requirements")
+                                    st.info("Found Requirements for chosen annotation")
                                     write_requirements(current_annotations[reqs_by_anno[radio_choice]])
-
                             with viz:
                                 with st.container(border=True):
                                     st.write("Visualization")
