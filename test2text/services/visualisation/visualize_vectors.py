@@ -60,9 +60,7 @@ def minifold_vectors_2d(vectors: np.array):
     n_samples = vectors.shape[0]
     # TSNE requires perplexity < n_samples
     if n_samples < 2:
-        # Not enough samples for TSNE, just return the original (reshaped to 2D if needed)
         return vectors.reshape(n_samples, -1)[:, :2]
-    # Set perplexity to a safe value
     perplexity = min(30, max(1, (n_samples - 1) // 3))
     tsne = TSNE(n_components=2, random_state=0, perplexity=perplexity)
     vectors_2d = tsne.fit_transform(vectors)
@@ -70,7 +68,12 @@ def minifold_vectors_2d(vectors: np.array):
 
 
 def minifold_vectors_3d(vectors: np.array):
-    tsne = TSNE(n_components=3, random_state=0)
+    n_samples = vectors.shape[0]
+    # TSNE requires perplexity < n_samples
+    if n_samples < 2:
+        return vectors.reshape(n_samples, -1)[:, :3]
+    perplexity = min(30, n_samples - 1) if n_samples > 1 else 1
+    tsne = TSNE(n_components=3, random_state=0, perplexity=perplexity)
     vectors_3d = tsne.fit_transform(vectors)
     return vectors_3d
 

@@ -4,7 +4,8 @@ import streamlit as st
 
 from test2text.services.db import DbClient
 from test2text.services.utils import unpack_float32
-from test2text.services.visualisation.visualize_vectors import minifold_vectors_2d, plot_2_sets_in_one_2d
+from test2text.services.visualisation.visualize_vectors import minifold_vectors_2d, plot_2_sets_in_one_2d, \
+    minifold_vectors_3d, plot_2_sets_in_one_3d
 
 
 def make_a_report():
@@ -177,7 +178,6 @@ def make_a_report():
                     t_cs, anno, viz = st.columns(3)
                     with t_cs:
                         with st.container(border=True):
-                            st.write("Test Cases")
                             st.markdown("""
                                 <style>
                                 .stRadio > div {
@@ -187,26 +187,32 @@ def make_a_report():
                                 }
                                 </style>
                             """, unsafe_allow_html=True)
-                            st.radio("", current_test_cases.keys(), key="radio_choice")
+                            st.radio("Test Cases", current_test_cases.keys(), key="radio_choice")
                         if st.session_state["radio_choice"]:
                             with anno:
                                 with st.container(border=True):
-                                    st.write("Annotations")
+                                    st.write("Annotations for chosen test case")
                                     write_annotations(current_annotations=current_test_cases[st.session_state["radio_choice"]])
 
                             with viz:
                                 with st.container(border=True):
-                                    req_dot = np.array(unpack_float32(req_embedding))
+                                    st.write("Visualization")
+                                    select = st.selectbox("Choose type of visualization", ["2D", "3D"])
                                     anno_embeddings = [
                                         unpack_float32(anno_emb)
-                                        for _, _, anno_emb,_ in current_test_cases[st.session_state["radio_choice"]]
+                                        for _, _, anno_emb, _ in current_test_cases[st.session_state["radio_choice"]]
                                     ]
+                                    requirement_vectors = np.array([np.array(unpack_float32(req_embedding))])
+                                    annotation_vectors = np.array(anno_embeddings)
+                                    if select == "2D":
 
-                                    anno_embeddings_np = np.array(anno_embeddings)
-                                    plot_2_sets_in_one_2d(minifold_vectors_2d(np.array([req_dot])),
-                                                          minifold_vectors_2d(anno_embeddings_np),
-                                                          "Requirements", "Annotations", first_color="red", second_color="green")
-
+                                        plot_2_sets_in_one_2d(minifold_vectors_2d(requirement_vectors),
+                                                              minifold_vectors_2d(annotation_vectors),
+                                                              "Requirement", "Annotations", first_color="red", second_color="green")
+                                    else:
+                                        reqs_vectors_3d = minifold_vectors_3d(requirement_vectors)
+                                        anno_vectors_3d = minifold_vectors_3d(annotation_vectors)
+                                        plot_2_sets_in_one_3d(reqs_vectors_3d, anno_vectors_3d, "Requerement", "Annotations")
     db.conn.close()
  
  
