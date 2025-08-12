@@ -1,11 +1,15 @@
 from itertools import groupby
 import numpy as np
 import streamlit as st
+from sqlite_vec import serialize_float32
 
 from test2text.services.db import DbClient
+from test2text.services.embeddings.embed import embed_requirement
 from test2text.services.utils import unpack_float32
 from test2text.services.visualisation.visualize_vectors import minifold_vectors_2d, plot_2_sets_in_one_2d, \
     minifold_vectors_3d, plot_2_sets_in_one_3d
+
+
 
 
 def make_a_report():
@@ -54,9 +58,17 @@ def make_a_report():
             where_clauses.append("Requirements.summary LIKE ?")
             params.append(f"%{filter_summary.strip()}%")
 
-        # TODO embeddings фильтр не реализован
+
+        distance_sql = ""
+        distance_order_sql = ""
+        query_embedding_bytes = None
         if filter_embedding.strip():
-            st.info("Фильтрация по embeddings не реализована в демо. Используйте другие фильтры.")
+            query_embedding = embed_requirement(filter_embedding.strip())
+            query_embedding_bytes = serialize_float32(query_embedding)
+            distance_sql = (", "
+                            "vec_distance_L2(embedding, ?) AS distance")
+            distance_order_sql = "distance ASC, "
+
 
         where_sql = ""
         if where_clauses:
@@ -70,15 +82,20 @@ def make_a_report():
                     Requirements.id as req_id,
                     Requirements.external_id as req_external_id,
                     Requirements.summary as req_summary
+                    {distance_sql}
                 FROM
                     Requirements
                 {where_sql}
                 ORDER BY
-                    Requirements.id
+                    {distance_order_sql}Requirements.id
                 """
-        data = db.conn.execute(sql, params)
+        data = db.conn.execute(sql, params + [query_embedding_bytes] if distance_sql else params)
+        if distance_sql:
+            requirements_dict = {f"#{req_id} Requirement {req_external_id} [smart search d={distance}]": req_id for
+                                 (req_id, req_external_id, _, distance) in data.fetchall()}
+        else:
+            requirements_dict = {f"#{req_id} Requirement {req_external_id}": req_id for (req_id, req_external_id, _) in data.fetchall()}
 
-        requirements_dict = {f"#{req_id} Requirement {req_external_id}": req_id for (req_id, req_external_id, _) in data.fetchall()}
         st.subheader("Choose 1 of filtered requirements")
         option = st.selectbox(
             "Choose a requirement to work with",
@@ -102,7 +119,7 @@ def make_a_report():
                 radius, limit = st.columns(2)
                 with radius:
                     filter_radius = st.number_input("Insert a radius",
-                                                    value=0.00,
+                                                    value=1.00,
                                                     step=0.01,
                                                     key="filter_radius")
                     st.info("Max distance to annotation")
@@ -118,7 +135,7 @@ def make_a_report():
                     st.info("Limit of selected test cases")
 
             if filter_radius:
-                where_clauses.append("distance >= ?")
+                where_clauses.append("distance <= ?")
                 params.append(f"{filter_radius}")
 
             if filter_limit:
