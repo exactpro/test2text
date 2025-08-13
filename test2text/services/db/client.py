@@ -53,7 +53,7 @@ class DbClient:
     def _init_tables(self):
         self.requirements = RequirementsTable(self.conn, self.embedding_dim)
         self.annotations = AnnotationsTable(self.conn, self.embedding_dim)
-        self.test_cases = TestCasesTable(self.conn)
+        self.test_cases = TestCasesTable(self.conn, self.embedding_dim)
         self.annos_to_reqs = AnnotationsToRequirementsTable(self.conn)
         self.cases_to_annos = TestCasesToAnnotationsTable(self.conn)
         self.requirements.init_table()

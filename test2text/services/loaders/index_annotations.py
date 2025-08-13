@@ -52,35 +52,46 @@ def index_annotations_from_files(files: list):
     SELECT COUNT(*) FROM Annotations
     """).fetchone()[0]
     annotations = db.conn.execute("""
-    SELECT id, summary FROM Annotations
+    SELECT  Annotations.id as anno_id,
+            Annotations.summary as summary,
+            TestCases.id as case_id,
+            TestCases.test_case as case_name
+    FROM Annotations
+        JOIN CasesToAnnos ON Annotations.id = CasesToAnnos.annotation_id
+        JOIN TestCases ON TestCases.id = CasesToAnnos.case_id
     """)
 
-    batch = []
+    anno_batch = []
+    tc_batch = []
 
-    def write_batch(batch):
-        embeddings = embed_annotations_batch([annotation for _, annotation in batch])
-        for i, (anno_id, annotation) in enumerate(batch):
+    def write_batch(batch, db_table_name: str):
+        embeddings = embed_annotations_batch([text for _, text in batch])
+        for i, (entry_id, text) in enumerate(batch):
             embedding = embeddings[i]
             db.conn.execute(
-                """
-                    UPDATE Annotations
+                f"""
+                    UPDATE {db_table_name}
                     SET embedding = ?
                     WHERE id = ?
                     """,
-                (embedding, anno_id),
+                (embedding, entry_id),
             )
         db.conn.commit()
 
     st.subheader("Processing annotations:")
     progress_bar = st.progress(0, text="Processing annotation:")
-    for i, (anno_id, summary) in enumerate(annotations.fetchall()):
+    for i, (anno_id, summary, case_id, case_name) in enumerate(annotations.fetchall()):
         progress_bar.progress(round((i+1) * 100/annotations_count), text="Processing annotation:")
-        batch.append((anno_id, summary))
-        if len(batch) == BATCH_SIZE:
-            write_batch(batch)
-            batch = []
+        anno_batch.append((anno_id, summary))
+        tc_batch.append((case_id, case_name))
+        if len(anno_batch) == BATCH_SIZE:
+            write_batch(anno_batch, "Annotations")
+            write_batch(tc_batch, "TestCases")
+            anno_batch = []
+            tc_batch = []
 
-    write_batch(batch)
+    write_batch(anno_batch, "Annotations")
+    write_batch(tc_batch, "TestCases")
 
     # Check annotations
     cursor = db.conn.execute("""

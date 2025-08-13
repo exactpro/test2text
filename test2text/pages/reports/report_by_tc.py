@@ -1,11 +1,14 @@
 from itertools import groupby
 import numpy as np
 import streamlit as st
+from sqlite_vec import serialize_float32
 
 from test2text.services.db import DbClient
+from test2text.services.embeddings.embed import embed_requirement
 from test2text.services.utils import unpack_float32
 from test2text.services.visualisation.visualize_vectors import minifold_vectors_2d, plot_2_sets_in_one_2d, \
     minifold_vectors_3d, plot_2_sets_in_one_3d
+
 
 
 def make_a_tc_report():
@@ -55,9 +58,17 @@ def make_a_tc_report():
             where_clauses.append("Testcases.test_case LIKE ?")
             params.append(f"%{filter_summary.strip()}%")
 
-        # TODO embeddings фильтр не реализован
+        distance_sql = ""
+        distance_order_sql = ""
+        query_embedding_bytes = None
         if filter_embedding.strip():
-            st.info("Фильтрация по embeddings не реализована в демо. Используйте другие фильтры.")
+            query_embedding = embed_requirement(filter_embedding.strip())
+            query_embedding_bytes = serialize_float32(query_embedding)
+            distance_sql = (", "
+                            "vec_distance_L2(embedding, ?) AS distance")
+            distance_order_sql = "distance ASC, "
+
+
 
         where_sql = ""
         if where_clauses:
@@ -71,13 +82,14 @@ def make_a_tc_report():
                     TestCases.id as case_id,
                     TestCases.test_script as test_script,
                     TestCases.test_case as test_case
+                    {distance_sql}
                 FROM
                     TestCases
                 {where_sql}
                 ORDER BY
-                    TestCases.id
+                    {distance_order_sql}TestCases.id
                 """
-        data = db.conn.execute(sql, params)
+        data = db.conn.execute(sql, params + [query_embedding_bytes] if distance_sql else params)
 
         tc_dict = {f"#{tc_id} Testcase {test_case}": tc_id for (tc_id, _, test_case) in data.fetchall()}
         st.subheader("Choose ONE of filtered test casees")
@@ -128,7 +140,6 @@ def make_a_tc_report():
             where_sql = ""
             if where_clauses:
                 where_sql = f"WHERE {' AND '.join(where_clauses)}"
-
 
             sql = f"""
                 SELECT
@@ -182,7 +193,7 @@ def make_a_tc_report():
                         with st.container(border=True):
                             st.write("Annotations")
                             st.info("Annotations linked to chosen Test case")
-                            reqs_by_anno = {f"#{anno_id} Annotation '{anno_summary}'": (anno_id, anno_summary, anno_embedding) for (anno_id, anno_summary, anno_embedding) in current_annotations.keys()}
+                            reqs_by_anno = {f"#{anno_id} {anno_summary}": (anno_id, anno_summary, anno_embedding) for (anno_id, anno_summary, anno_embedding) in current_annotations.keys()}
                             radio_choice = st.radio("Annotation's id + summary", reqs_by_anno.keys(), key="radio_choice")
                             st.markdown("""
                                            <style>
