@@ -1,2 +1,2 @@
 [server]
-fileWatcherType = "auto"
+fileWatcherType = "none"
