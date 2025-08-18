@@ -3,14 +3,14 @@ import io
 
 import streamlit as st
 
-from test2text.services.db import DbClient
+from test2text.services.db import get_db_client
 from test2text.services.embeddings.embed import embed_annotations_batch
 
 BATCH_SIZE = 100
 
 
 def index_annotations_from_files(files: list):
-    db = DbClient("./private/requirements.db")
+    db = get_db_client()
     st.subheader("Processing files:")
     file_order, file_name, proc_file = st.columns(3)
     with file_order:
@@ -38,13 +38,15 @@ def index_annotations_from_files(files: list):
             file_progress_bar = st.progress(0)
         count_rows = len(list(reader))
         for i, row in enumerate(reader):
-            file_progress_bar.progress(round(i*100/count_rows))
+            file_progress_bar.progress(round(i * 100 / count_rows))
             [summary, _, test_script, test_case, *_] = row
             anno_id = db.annotations.get_or_insert(summary=summary)
             tc_id = db.test_cases.get_or_insert(
                 test_script=test_script, test_case=test_case
             )
-            insertions.append(db.cases_to_annos.insert(case_id=tc_id, annotation_id=anno_id))
+            insertions.append(
+                db.cases_to_annos.insert(case_id=tc_id, annotation_id=anno_id)
+            )
 
     db.conn.commit()
     # Embed annotations
@@ -74,7 +76,9 @@ def index_annotations_from_files(files: list):
     st.subheader("Processing annotations:")
     progress_bar = st.progress(0, text="Processing annotation:")
     for i, (anno_id, summary) in enumerate(annotations.fetchall()):
-        progress_bar.progress(round((i+1) * 100/annotations_count), text="Processing annotation:")
+        progress_bar.progress(
+            round((i + 1) * 100 / annotations_count), text="Processing annotation:"
+        )
         batch.append((anno_id, summary))
         if len(batch) == BATCH_SIZE:
             write_batch(batch)
@@ -87,4 +91,3 @@ def index_annotations_from_files(files: list):
     SELECT COUNT(*) FROM Annotations
     """)
     return cursor.fetchone()
-

@@ -2,7 +2,7 @@ import logging
 import csv
 import io
 import streamlit as st
-from test2text.services.db import DbClient
+from test2text.services.db import get_db_client
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ def write_table_row(*args, **kwargs):
 
 
 def trace_test_cases_to_annos(trace_files: list):
-    db = DbClient('./private/requirements.db')
+    db = get_db_client()
 
     st.info("Reading trace files and inserting test case + annotations pairs into database...")
     write_table_row("File name", "Extracted pairs test cases + annotations", "Inserted to data base", "Ignored (dublicates or wrong id)")
