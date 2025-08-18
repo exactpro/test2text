@@ -24,7 +24,6 @@ OnProgress = Callable[[float], None]
 
 def embed_annotations(*_, embed_all=False, on_progress: OnProgress = None):
     from .embed import embed_annotations_batch
-    from sqlite_vec import serialize_float32
 
     db = get_db_client()
     annotations_count = count_all_annotations()
