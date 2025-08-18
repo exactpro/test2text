@@ -45,3 +45,18 @@ class TestRequirementsTable(TestCase):
         id2 = self.db.requirements.insert("Test Requirement 3", external_id="ext-2")
         self.assertIsNotNone(id1)
         self.assertIsNone(id2)
+
+    def test_insert_embedding(self):
+        embedding = [0.1] * self.db.requirements.embedding_size
+        id1 = self.db.requirements.insert("Test Requirement 5", embedding)
+        self.assertIsNotNone(id1)
+
+    def test_insert_short_embedding(self):
+        short_embedding = [0.1] * (self.db.requirements.embedding_size - 1)
+        id1 = self.db.requirements.insert("Test Requirement 6", short_embedding)
+        self.assertIsNone(id1)
+
+    def test_insert_long_embedding(self):
+        long_embedding = [0.1] * (self.db.requirements.embedding_size + 1)
+        id1 = self.db.requirements.insert("Test Requirement 7", long_embedding)
+        self.assertIsNone(id1)

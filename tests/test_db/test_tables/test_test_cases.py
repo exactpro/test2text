@@ -42,3 +42,18 @@ class TestTestCasesTable(TestCase):
         self.assertIsNotNone(id1)
         self.assertIsNotNone(id2)
         self.assertEqual(id1, id2)
+
+    def test_insert_embedding(self):
+        embedding = [0.1] * self.db.test_cases.embedding_size
+        id1 = self.db.test_cases.insert("Test Script 12", "Test Case 12", embedding)
+        self.assertIsNotNone(id1)
+
+    def test_insert_short_embedding(self):
+        short_embedding = [0.1] * (self.db.test_cases.embedding_size - 1)
+        id1 = self.db.test_cases.insert("Test Script 13", "Test Case 13", short_embedding)
+        self.assertIsNone(id1)
+
+    def test_insert_long_embedding(self):
+        long_embedding = [0.1] * (self.db.test_cases.embedding_size + 1)
+        id1 = self.db.test_cases.insert("Test Script 14", "Test Case 14",long_embedding)
+        self.assertIsNone(id1)
