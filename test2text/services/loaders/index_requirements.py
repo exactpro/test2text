@@ -18,8 +18,10 @@ def index_requirements_from_files(files: list):
         reader = csv.reader(stringio)
 
         if len(list(reader)) <= 3:
-            st.warning(f"The uploaded CSV file {file.name}'s content is too short. "
-                       f"There are {len(list(reader))} lines inside.")
+            st.warning(
+                f"The uploaded CSV file {file.name}'s content is too short. "
+                f"There are {len(list(reader))} lines inside."
+            )
             continue
 
         for _ in range(3):
@@ -52,5 +54,3 @@ def index_requirements_from_files(files: list):
     SELECT COUNT(*) FROM Requirements
     """)
     return cursor.fetchone()
-
-
