@@ -2,7 +2,7 @@ import streamlit as st
 
 from test2text.pages.upload.annotations import show_annotations
 from test2text.pages.upload.requirements import show_requirements
-from test2text.services.embeddings.cache_distances import show_distances_histogram
+from test2text.pages.controls.controls_page import controls_page
 from test2text.pages.report import make_a_report
 from test2text.services.visualisation.visualize_vectors import visualize_vectors
 
@@ -43,9 +43,7 @@ if __name__ == "__main__":
     requirements = st.Page(
         show_requirements, title="Requirements", icon=":material/database_upload:"
     )
-    cache_distances = st.Page(
-        show_distances_histogram, title="Cache Distances", icon=":material/cached:"
-    )
+    cache_distances = st.Page(controls_page, title="Controls", icon=":material/cached:")
     report = st.Page(make_a_report, title="Report", icon=":material/publish:")
     visualization = st.Page(
         visualize_vectors, title="Visualize Vectors", icon=":material/dataset:"

@@ -59,3 +59,18 @@ class AnnotationsTable(AbstractTable):
             result = cursor.fetchone()
             cursor.close()
             return result[0]
+
+    def set_embedding(self, anno_id: int, embedding: list[float]) -> None:
+        if len(embedding) != self.embedding_size:
+            raise ValueError(
+                f"Embedding size must be {self.embedding_size}, got {len(embedding)}"
+            )
+        serialized_embedding = serialize_float32(embedding)
+        self.connection.execute(
+            """
+            UPDATE Annotations
+            SET embedding = ?
+            WHERE id = ?
+            """,
+            (serialized_embedding, anno_id),
+        )

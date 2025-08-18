@@ -1,5 +1,10 @@
 from unittest import TestCase
 from test2text.services.db.client import DbClient
+from test2text.services.utils.sqlite_vec import unpack_float32
+
+
+def round_vector(vector: list[float]) -> list[float]:
+    return [round(x, 6) for x in vector]
 
 
 class TestAnnotationsTable(TestCase):
@@ -55,3 +60,32 @@ class TestAnnotationsTable(TestCase):
         self.assertIsNotNone(id1)
         self.assertIsNotNone(id2)
         self.assertEqual(id1, id2)
+
+    def test_set_embedding(self):
+        id1 = self.db.annotations.insert("Test Summary 10")
+        with self.subTest("Set new embedding"):
+            orig_embedding = [0.1] * self.db.annotations.embedding_size
+            self.db.annotations.set_embedding(id1, orig_embedding)
+            self.db.conn.commit()
+            cursor = self.db.conn.execute(
+                "SELECT embedding FROM Annotations WHERE id = ?", (id1,)
+            )
+            result = cursor.fetchone()
+            cursor.close()
+            self.assertIsNotNone(result)
+            read_embedding = unpack_float32(result[0])
+            self.assertEqual(len(read_embedding), self.db.annotations.embedding_size)
+            self.assertEqual(round_vector(read_embedding), round_vector(orig_embedding))
+        with self.subTest("Overwrite embedding"):
+            new_embedding = [0.9] * self.db.annotations.embedding_size
+            self.db.annotations.set_embedding(id1, new_embedding)
+            self.db.conn.commit()
+            cursor = self.db.conn.execute(
+                "SELECT embedding FROM Annotations WHERE id = ?", (id1,)
+            )
+            result = cursor.fetchone()
+            cursor.close()
+            self.assertIsNotNone(result)
+            read_embedding = unpack_float32(result[0])
+            self.assertEqual(len(read_embedding), self.db.annotations.embedding_size)
+            self.assertEqual(round_vector(read_embedding), round_vector(new_embedding))
