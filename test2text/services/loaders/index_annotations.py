@@ -2,7 +2,7 @@ import csv
 import io
 
 import streamlit as st
-
+from sqlite_vec import serialize_float32
 from test2text.services.db import get_db_client
 from test2text.services.embeddings.embed import embed_annotations_batch
 
@@ -30,10 +30,6 @@ def index_annotations_from_files(files: list):
         reader = csv.reader(stringio)
         insertions = []
 
-        if not list(reader):
-            with proc_file:
-                st.warning(f"The uploaded CSV file {file.name} is empty.")
-            continue
         with proc_file:
             file_progress_bar = st.progress(0)
         count_rows = len(list(reader))
@@ -59,7 +55,7 @@ def index_annotations_from_files(files: list):
 
     batch = []
 
-    def write_batch(batch):
+    def write_batch(batch: list[tuple[int, str]]):
         embeddings = embed_annotations_batch([annotation for _, annotation in batch])
         for i, (anno_id, annotation) in enumerate(batch):
             embedding = embeddings[i]
@@ -69,7 +65,7 @@ def index_annotations_from_files(files: list):
                     SET embedding = ?
                     WHERE id = ?
                     """,
-                (embedding, anno_id),
+                (serialize_float32(embedding), anno_id),
             )
         db.conn.commit()
 
