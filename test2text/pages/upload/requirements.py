@@ -2,22 +2,25 @@ import streamlit as st
 
 
 def show_requirements():
-    st.title("Upload a file with requirements")
+    with st.form("upload_requirements_form"):
+        st.title("Upload a file with requirements")
 
-    uploaded_files = st.file_uploader(
-        "Choose a file with requirements", type="csv", accept_multiple_files=True
-    )
+        uploaded_files = st.file_uploader(
+            "Choose a file with requirements", type="csv", accept_multiple_files=True
+        )
 
-    if not uploaded_files:
-        st.info("Please upload a *.trace.csv file to extract rows.")
-        return False
+        if not uploaded_files:
+            st.info("Please upload a *.trace.csv file to extract rows.")
 
-    from test2text.services.loaders.index_requirements import (
-        index_requirements_from_files,
-    )
+        submitted = st.form_submit_button("Upload")
 
-    index_requirements_from_files(uploaded_files)
-    st.info("CSV file uploaded successfully! Requirements indexed.")
+    if submitted:
+        from test2text.services.loaders.index_requirements import (
+            index_requirements_from_files,
+        )
+
+        index_requirements_from_files(uploaded_files)
+        st.info("CSV file uploaded successfully! Requirements indexed.")
 
 
 if __name__ == "__main__":
