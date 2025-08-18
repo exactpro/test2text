@@ -1,13 +1,12 @@
-import streamlit as st
-import plotly.express as px
-
-from test2text.services.embeddings.annotation_embeddings_controls import (
-    count_all_annotations,
-    count_embedded_annotations,
-)
-
-
 def controls_page():
+    import streamlit as st
+    import plotly.express as px
+
+    from test2text.services.embeddings.annotation_embeddings_controls import (
+        count_all_annotations,
+        count_embedded_annotations,
+    )
+
     st.header("Controls page")
     embedding_col, distances_col = st.columns(2)
     with embedding_col:
