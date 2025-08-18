@@ -17,20 +17,20 @@ def index_requirements_from_files(files: list):
         stringio = io.StringIO(file.getvalue().decode("utf-8"))
         reader = csv.reader(stringio)
 
-        if len(list(reader)) <= 3:
+        try:
+            for _ in range(3):
+                next(reader)
+        except StopIteration:
             st.warning(
-                f"The uploaded CSV file {file.name}'s content is too short. "
-                f"There are {len(list(reader))} lines inside."
+                f"The uploaded CSV file {file.name} does not have enough lines. "
+                "Please ensure it has at least 3 lines of data."
             )
             continue
-
-        for _ in range(3):
-            next(reader)
         batch = []
         last_requirement = ""
 
         def write_batch():
-            global batch
+            nonlocal batch
             embeddings = embed_requirements_batch(
                 [requirement for _, requirement in batch]
             )

@@ -17,6 +17,7 @@ def show_requirements():
     )
 
     index_requirements_from_files(uploaded_files)
+    st.info("CSV file uploaded successfully! Requirements indexed.")
 
 
 if __name__ == "__main__":
