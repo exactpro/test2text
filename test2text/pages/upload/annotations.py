@@ -32,14 +32,37 @@ def show_annotations():
         submitted = st.form_submit_button("Start")
 
     if submitted:
-        st.subheader("Results:")
         with st.spinner("Loading trace files...", show_time=True):
             if chosen_option == LOAD_TRACE_FILE:
                 from test2text.services.loaders.index_annotations import (
                     index_annotations_from_files,
                 )
 
-                index_annotations_from_files(uploaded_files)
+                st.subheader("Processing files:")
+                file_order, file_name, proc_file = st.columns(3)
+                with file_order:
+                    st.write("Number")
+                with file_name:
+                    st.write("File name")
+                with proc_file:
+                    st.write("Detected annotations")
+
+                def on_file_start(file_number: str, file_name: str):
+                    file_order_column, file_name_column, proc_file_column = st.columns(
+                        3
+                    )
+                    with file_order_column:
+                        st.write(file_number)
+                    with file_name_column:
+                        st.write(file_name)
+                    with proc_file_column:
+                        file_counter = st.empty()
+                    return file_counter
+
+                index_annotations_from_files(
+                    uploaded_files, on_file_start=on_file_start
+                )
+                st.success("Annotations loaded successfully!")
 
             elif chosen_option == LOAD_AND_CONCAT_TRACE_FILE:
                 from test2text.services.loaders.convert_trace_annos import (
@@ -47,6 +70,7 @@ def show_annotations():
                 )
 
                 trace_test_cases_to_annos(uploaded_files)
+                st.success("Annotations loaded and concatenated successfully!")
             else:
                 st.error("Unknown action selected. Please try again.")
 
