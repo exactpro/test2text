@@ -96,35 +96,34 @@ def plot_vectors_3d(vectors_3d: np.array, title):
 
 
 def plot_2_sets_in_one_2d(
-        first_set_of_vec, second_set_of_vec, first_title, second_title, first_color="blue", second_color="green"
+    first_set_of_vec,
+    second_set_of_vec,
+    first_title,
+    second_title,
+    first_color="blue",
+    second_color="green",
 ):
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
             x=first_set_of_vec[:, 0],
             y=first_set_of_vec[:, 1],
-            mode='markers',
+            mode="markers",
             name=first_title,
-            marker=dict(
-                color=f"{first_color}"
-            )
+            marker=dict(color=f"{first_color}"),
         )
     )
     fig.add_trace(
         go.Scatter(
             x=second_set_of_vec[:, 0],
             y=second_set_of_vec[:, 1],
-            mode='markers',
+            mode="markers",
             name=second_title,
-            marker=dict(
-                color=f"{second_color}"
-            )
+            marker=dict(color=f"{second_color}"),
         )
     )
     fig.update_layout(
-        title=f"{first_title} vs {second_title}",
-        xaxis_title='X',
-        yaxis_title='Y'
+        title=f"{first_title} vs {second_title}", xaxis_title="X", yaxis_title="Y"
     )
     st.plotly_chart(fig)
 

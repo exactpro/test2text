@@ -6,10 +6,12 @@ from sqlite_vec import serialize_float32
 from test2text.services.db import get_db_client
 from test2text.services.embeddings.embed import embed_requirement
 from test2text.services.utils import unpack_float32
-from test2text.services.visualisation.visualize_vectors import minifold_vectors_2d, plot_2_sets_in_one_2d, \
-    minifold_vectors_3d, plot_2_sets_in_one_3d
-
-
+from test2text.services.visualisation.visualize_vectors import (
+    minifold_vectors_2d,
+    plot_2_sets_in_one_2d,
+    minifold_vectors_3d,
+    plot_2_sets_in_one_3d,
+)
 
 
 def make_a_report():
@@ -41,10 +43,14 @@ def make_a_report():
                 filter_id = st.text_input("ID", value="", key="filter_id")
                 st.info("Filter by external ID")
             with summary:
-                filter_summary = st.text_input("Text content", value="", key="filter_summary")
+                filter_summary = st.text_input(
+                    "Text content", value="", key="filter_summary"
+                )
                 st.info("Search concrete phrases using SQL like expressions")
             with embed:
-                filter_embedding = st.text_input("Smart rearch", value="", key="filter_embedding")
+                filter_embedding = st.text_input(
+                    "Smart rearch", value="", key="filter_embedding"
+                )
                 st.info("Search using embeddings")
 
         where_clauses = []
@@ -58,22 +64,18 @@ def make_a_report():
             where_clauses.append("Requirements.summary LIKE ?")
             params.append(f"%{filter_summary.strip()}%")
 
-
         distance_sql = ""
         distance_order_sql = ""
         query_embedding_bytes = None
         if filter_embedding.strip():
             query_embedding = embed_requirement(filter_embedding.strip())
             query_embedding_bytes = serialize_float32(query_embedding)
-            distance_sql = (", "
-                            "vec_distance_L2(embedding, ?) AS distance")
+            distance_sql = ", vec_distance_L2(embedding, ?) AS distance"
             distance_order_sql = "distance ASC, "
-
 
         where_sql = ""
         if where_clauses:
             where_sql = f"WHERE {' AND '.join(where_clauses)}"
-
 
     with st.container(border=True):
         st.session_state.update({"req_form_submitting": True})
@@ -89,22 +91,28 @@ def make_a_report():
                 ORDER BY
                     {distance_order_sql}Requirements.id
                 """
-        data = db.conn.execute(sql, params + [query_embedding_bytes] if distance_sql else params)
+        data = db.conn.execute(
+            sql, params + [query_embedding_bytes] if distance_sql else params
+        )
         if distance_sql:
-            requirements_dict = {f"#{req_id} Requirement {req_external_id} [smart search d={distance}]": req_id for
-                                 (req_id, req_external_id, _, distance) in data.fetchall()}
+            requirements_dict = {
+                f"#{req_id} Requirement {req_external_id} [smart search d={distance}]": req_id
+                for (req_id, req_external_id, _, distance) in data.fetchall()
+            }
         else:
-            requirements_dict = {f"#{req_id} Requirement {req_external_id}": req_id for (req_id, req_external_id, _) in data.fetchall()}
+            requirements_dict = {
+                f"#{req_id} Requirement {req_external_id}": req_id
+                for (req_id, req_external_id, _) in data.fetchall()
+            }
 
         st.subheader("Choose 1 of filtered requirements")
         option = st.selectbox(
             "Choose a requirement to work with",
             requirements_dict.keys(),
-            key="filter_req_id"
+            key="filter_req_id",
         )
 
         if option:
-
             clause = "Requirements.id = ?"
             if clause in where_clauses:
                 idx = where_clauses.index(clause)
@@ -118,10 +126,9 @@ def make_a_report():
             with st.expander("🔍 Filters"):
                 radius, limit = st.columns(2)
                 with radius:
-                    filter_radius = st.number_input("Insert a radius",
-                                                    value=1.00,
-                                                    step=0.01,
-                                                    key="filter_radius")
+                    filter_radius = st.number_input(
+                        "Insert a radius", value=1.00, step=0.01, key="filter_radius"
+                    )
                     st.info("Max distance to annotation")
                 with limit:
                     filter_limit = st.number_input(
@@ -130,7 +137,7 @@ def make_a_report():
                         max_value=15,
                         value=15,
                         step=1,
-                        key="filter_limit"
+                        key="filter_limit",
                     )
                     st.info("Limit of selected test cases")
 
@@ -144,7 +151,6 @@ def make_a_report():
             where_sql = ""
             if where_clauses:
                 where_sql = f"WHERE {' AND '.join(where_clauses)}"
-
 
             sql = f"""
                 SELECT
@@ -176,29 +182,51 @@ def make_a_report():
             data = db.conn.execute(sql, params)
             rows = data.fetchall()
             if not rows:
-                st.error("There is no requested data to inspect.\n"
-                         "Please check filters, completeness of the data or upload new annotations and requirements.")
+                st.error(
+                    "There is no requested data to inspect.\n"
+                    "Please check filters, completeness of the data or upload new annotations and requirements."
+                )
                 return None
 
-
-            for (req_id, req_external_id, req_summary, req_embedding), group in groupby(rows, lambda x: x[0:4]):
+            for (req_id, req_external_id, req_summary, req_embedding), group in groupby(
+                rows, lambda x: x[0:4]
+            ):
                 st.divider()
                 with st.container():
                     st.subheader(f" Inspect Requirement {req_external_id}")
                     st.write(req_summary)
                     current_test_cases = dict()
-                    for _, _, _, _, anno_id, anno_summary, anno_embedding, distance, case_id, test_script, test_case in group:
+                    for (
+                        _,
+                        _,
+                        _,
+                        _,
+                        anno_id,
+                        anno_summary,
+                        anno_embedding,
+                        distance,
+                        case_id,
+                        test_script,
+                        test_case,
+                    ) in group:
                         current_annotation = current_test_cases.get(test_case, set())
                         current_test_cases.update({test_case: current_annotation})
-                        current_test_cases[test_case].add((anno_id, anno_summary, anno_embedding, distance))
+                        current_test_cases[test_case].add(
+                            (anno_id, anno_summary, anno_embedding, distance)
+                        )
 
                     t_cs, anno, viz = st.columns(3)
                     with t_cs:
                         with st.container(border=True):
                             st.write("Test Cases")
                             st.info("Test cases of chosen Requirement")
-                            st.radio("Test cases name", current_test_cases.keys(), key="radio_choice")
-                            st.markdown("""
+                            st.radio(
+                                "Test cases name",
+                                current_test_cases.keys(),
+                                key="radio_choice",
+                            )
+                            st.markdown(
+                                """
                                             <style>
                                                    .stRadio > div {
                                                                 max-width: 350px;
@@ -206,35 +234,60 @@ def make_a_report():
                                                                 white-space: pre-line;
                                                                 }
                                             </style>
-                                        """, unsafe_allow_html=True)
+                                        """,
+                                unsafe_allow_html=True,
+                            )
 
                         if st.session_state["radio_choice"]:
                             with anno:
                                 with st.container(border=True):
                                     st.write("Annotations")
                                     st.info("List of Annotations for chosen Test case")
-                                    write_annotations(current_annotations=current_test_cases[st.session_state["radio_choice"]])
+                                    write_annotations(
+                                        current_annotations=current_test_cases[
+                                            st.session_state["radio_choice"]
+                                        ]
+                                    )
                             with viz:
                                 with st.container(border=True):
                                     st.write("Visualization")
-                                    select = st.selectbox("Choose type of visualization", ["2D", "3D"])
+                                    select = st.selectbox(
+                                        "Choose type of visualization", ["2D", "3D"]
+                                    )
                                     anno_embeddings = [
                                         unpack_float32(anno_emb)
-                                        for _, _, anno_emb, _ in current_test_cases[st.session_state["radio_choice"]]
+                                        for _, _, anno_emb, _ in current_test_cases[
+                                            st.session_state["radio_choice"]
+                                        ]
                                     ]
-                                    requirement_vectors = np.array([np.array(unpack_float32(req_embedding))])
+                                    requirement_vectors = np.array(
+                                        [np.array(unpack_float32(req_embedding))]
+                                    )
                                     annotation_vectors = np.array(anno_embeddings)
                                     if select == "2D":
-
-                                        plot_2_sets_in_one_2d(minifold_vectors_2d(requirement_vectors),
-                                                              minifold_vectors_2d(annotation_vectors),
-                                                              "Requirement", "Annotations", first_color="red", second_color="green")
+                                        plot_2_sets_in_one_2d(
+                                            minifold_vectors_2d(requirement_vectors),
+                                            minifold_vectors_2d(annotation_vectors),
+                                            "Requirement",
+                                            "Annotations",
+                                            first_color="red",
+                                            second_color="green",
+                                        )
                                     else:
-                                        reqs_vectors_3d = minifold_vectors_3d(requirement_vectors)
-                                        anno_vectors_3d = minifold_vectors_3d(annotation_vectors)
-                                        plot_2_sets_in_one_3d(reqs_vectors_3d, anno_vectors_3d, "Requerement", "Annotations")
+                                        reqs_vectors_3d = minifold_vectors_3d(
+                                            requirement_vectors
+                                        )
+                                        anno_vectors_3d = minifold_vectors_3d(
+                                            annotation_vectors
+                                        )
+                                        plot_2_sets_in_one_3d(
+                                            reqs_vectors_3d,
+                                            anno_vectors_3d,
+                                            "Requerement",
+                                            "Annotations",
+                                        )
     db.conn.close()
- 
- 
+
+
 if __name__ == "__main__":
     make_a_report()

@@ -50,10 +50,14 @@ class TestTestCasesTable(TestCase):
 
     def test_insert_short_embedding(self):
         short_embedding = [0.1] * (self.db.test_cases.embedding_size - 1)
-        id1 = self.db.test_cases.insert("Test Script 13", "Test Case 13", short_embedding)
+        id1 = self.db.test_cases.insert(
+            "Test Script 13", "Test Case 13", short_embedding
+        )
         self.assertIsNone(id1)
 
     def test_insert_long_embedding(self):
         long_embedding = [0.1] * (self.db.test_cases.embedding_size + 1)
-        id1 = self.db.test_cases.insert("Test Script 14", "Test Case 14",long_embedding)
+        id1 = self.db.test_cases.insert(
+            "Test Script 14", "Test Case 14", long_embedding
+        )
         self.assertIsNone(id1)

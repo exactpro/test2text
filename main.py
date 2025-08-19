@@ -1,12 +1,13 @@
 import streamlit as st
 
 from test2text.pages.documentation import show_documentation
-from test2text.pages.upload.annotations import  show_annotations
-from test2text.pages.upload.requirements import  show_requirements
+from test2text.pages.upload.annotations import show_annotations
+from test2text.pages.upload.requirements import show_requirements
 from test2text.pages.reports.report_by_req import make_a_report
 from test2text.pages.reports.report_by_tc import make_a_tc_report
-from test2text.services.visualisation.visualize_vectors import  visualize_vectors
+from test2text.services.visualisation.visualize_vectors import visualize_vectors
 from test2text.pages.controls.controls_page import controls_page
+
 
 def add_logo():
     st.markdown(
@@ -48,9 +49,7 @@ if __name__ == "__main__":
     requirements = st.Page(
         show_requirements, title="Requirements", icon=":material/database_upload:"
     )
-    cache_distances = st.Page(
-        controls_page, title="Controls", icon=":material/cached:"
-            )
+    cache_distances = st.Page(controls_page, title="Controls", icon=":material/cached:")
     report_by_req = st.Page(
         make_a_report, title="Requirement's Report", icon=":material/publish:"
     )

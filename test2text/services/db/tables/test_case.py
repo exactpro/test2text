@@ -28,17 +28,23 @@ class TestCasesTable(AbstractTable):
                                     and vec_length(embedding) == $embedding_size)
                             ) 
                         )
-                    """).substitute(embedding_size=self.embedding_size))
+                    """).substitute(embedding_size=self.embedding_size)
+        )
 
-
-    def insert(self, test_script: str, test_case: str, embedding:list[float] = None) -> Optional[int]:
+    def insert(
+        self, test_script: str, test_case: str, embedding: list[float] = None
+    ) -> Optional[int]:
         cursor = self.connection.execute(
             """
             INSERT OR IGNORE INTO TestCases (test_script, test_case, embedding)
             VALUES (?, ?, ?)
             RETURNING id
             """,
-            (test_script, test_case, serialize_float32(embedding) if embedding is not None else None),
+            (
+                test_script,
+                test_case,
+                serialize_float32(embedding) if embedding is not None else None,
+            ),
         )
         result = cursor.fetchone()
         cursor.close()
