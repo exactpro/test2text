@@ -26,7 +26,7 @@ def controls_page():
             st.session_state["embedded_annotations_count"],
         )
 
-        embed_all = st.checkbox("Overwrite existing annotations", value=False)
+        embed_all = st.checkbox("Overwrite existing embeddings", value=False)
         embed_btn = st.button("Start embedding annotations")
 
         if embed_btn:
