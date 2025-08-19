@@ -3,7 +3,7 @@ import numpy as np
 import streamlit as st
 from sqlite_vec import serialize_float32
 
-from test2text.services.db import DbClient, get_db_client
+from test2text.services.db import get_db_client
 from test2text.services.embeddings.embed import embed_requirement
 from test2text.services.utils import unpack_float32
 from test2text.services.visualisation.visualize_vectors import minifold_vectors_2d, plot_2_sets_in_one_2d, \
