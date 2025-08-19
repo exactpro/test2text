@@ -142,9 +142,9 @@ def plot_2_sets_in_one_3d(
     st.plotly_chart(fig)
 
 
-def visualize_vectors(db_path="./private/requirements.db"):
+def visualize_vectors():
     st.header("Visualizing vectors")
-    db = DbClient(db_path)
+    db = get_db_client()
     Req_tab, Anno_tab, Req_Anno_tab = st.tabs(
         ["Requirements", "Annotations", "Requirements vs Annotations"]
     )
@@ -202,4 +202,4 @@ def visualize_vectors(db_path="./private/requirements.db"):
 
 
 if __name__ == "__main__":
-    visualize_vectors("./private/requirements.db")
+    visualize_vectors()
