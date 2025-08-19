@@ -2,7 +2,7 @@ import logging
 import csv
 import io
 import streamlit as st
-from test2text.services.db import DbClient
+from test2text.services.db import get_db_client
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -12,6 +12,7 @@ EMPTY = ""
 
 def is_empty(value):
     return True if value == EMPTY else False
+
 
 def write_table_row(*args, **kwargs):
     count = len(args)
@@ -25,10 +26,17 @@ def write_table_row(*args, **kwargs):
 
 
 def trace_test_cases_to_annos(trace_files: list):
-    db = DbClient('./private/requirements.db')
+    db = get_db_client()
 
-    st.info("Reading trace files and inserting test case + annotations pairs into database...")
-    write_table_row("File name", "Extracted pairs test cases + annotations", "Inserted to data base", "Ignored (dublicates or wrong id)")
+    st.info(
+        "Reading trace files and inserting test case + annotations pairs into database..."
+    )
+    write_table_row(
+        "File name",
+        "Extracted pairs test cases + annotations",
+        "Inserted to data base",
+        "Ignored (dublicates or wrong id)",
+    )
     for i, file in enumerate(trace_files):
         stringio = io.StringIO(file.getvalue().decode("utf-8"))
         reader = csv.reader(stringio)
@@ -46,23 +54,30 @@ def trace_test_cases_to_annos(trace_files: list):
                 continue
             elif row[0] == "TestCaseEnd":
                 if not is_empty(current_tc) and not is_empty(concat_summary):
-                    case_id = db.test_cases.get_or_insert(test_script=test_script, test_case=current_tc)
+                    case_id = db.test_cases.get_or_insert(
+                        test_script=test_script, test_case=current_tc
+                    )
                     annotation_id = db.annotations.get_or_insert(summary=concat_summary)
-                    insertions.append(db.cases_to_annos.insert(case_id=case_id, annotation_id=annotation_id))
+                    insertions.append(
+                        db.cases_to_annos.insert(
+                            case_id=case_id, annotation_id=annotation_id
+                        )
+                    )
             else:
                 if not is_empty(row[global_columns.index("TestCase")]):
                     if current_tc != row[global_columns.index("TestCase")]:
                         current_tc = row[global_columns.index("TestCase")]
-                    if is_empty(test_script) and not is_empty(row[global_columns.index("TestScript")]):
+                    if is_empty(test_script) and not is_empty(
+                        row[global_columns.index("TestScript")]
+                    ):
                         test_script = row[global_columns.index("TestScript")]
                     concat_summary += row[0]
-        write_table_row(file.name, len(insertions), sum(insertions), len(insertions) - sum(insertions))
+        write_table_row(
+            file.name,
+            len(insertions),
+            sum(insertions),
+            len(insertions) - sum(insertions),
+        )
 
     db.conn.commit()
     db.conn.close()
-
-
-
-
-
-

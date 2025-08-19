@@ -7,7 +7,7 @@ from test2text.services.embeddings.cache_distances import show_distances_histogr
 from test2text.pages.reports.report_by_req import make_a_report
 from test2text.pages.reports.report_by_tc import make_a_tc_report
 from test2text.services.visualisation.visualize_vectors import  visualize_vectors
-
+from test2text.pages.controls.controls_page import controls_page
 
 def add_logo():
     st.markdown(
@@ -34,24 +34,33 @@ def add_logo():
 
 
 if __name__ == "__main__":
-    st.set_page_config(page_title="Test2Text App", layout="wide", initial_sidebar_state="auto")
+    st.set_page_config(
+        page_title="Test2Text App", layout="wide", initial_sidebar_state="auto"
+    )
     add_logo()
 
-    about = st.Page(show_documentation,
-                          title="About application", icon=":material/info:")
+    about = st.Page(
+        show_documentation, title="About application", icon=":material/info:"
+    )
 
-    annotations = st.Page(show_annotations,
-                          title="Annotations", icon=":material/database_upload:")
-    requirements = st.Page(show_requirements,
-                           title="Requirements", icon=":material/database_upload:")
-    cache_distances = st.Page(show_distances_histogram,
-                              title="Cache Distances", icon=":material/cached:")
-    report_by_req = st.Page(make_a_report,
-                     title="Requirement's Report", icon=":material/publish:")
-    report_by_tc = st.Page(make_a_tc_report,
-                            title="Test cases Report", icon=":material/publish:")
-    visualization = st.Page(visualize_vectors,
-                            title="Visualize Vectors", icon=":material/dataset:")
+    annotations = st.Page(
+        show_annotations, title="Annotations", icon=":material/database_upload:"
+    )
+    requirements = st.Page(
+        show_requirements, title="Requirements", icon=":material/database_upload:"
+    )
+    cache_distances = st.Page(
+        controls_page, title="Controls", icon=":material/cached:"
+            )
+    report_by_req = st.Page(
+        make_a_report, title="Requirement's Report", icon=":material/publish:"
+    )
+    report_by_tc = st.Page(
+        make_a_tc_report, title="Test cases Report", icon=":material/publish:"
+    )
+    visualization = st.Page(
+        visualize_vectors, title="Visualize Vectors", icon=":material/dataset:"
+    )
     pages = {
         "Home": [about],
         "Upload": [annotations, requirements],
@@ -61,4 +70,3 @@ if __name__ == "__main__":
     pg = st.navigation(pages)
 
     pg.run()
-

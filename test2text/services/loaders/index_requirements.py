@@ -1,40 +1,53 @@
 import csv
 import io
+from typing import Callable, Optional, Union
 
-import streamlit as st
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 
-from test2text.services.db import DbClient
+from test2text.services.db import get_db_client
 from test2text.services.embeddings.embed import embed_requirements_batch
 
 BATCH_SIZE = 100
 
+OnStartFile = Callable[[int, str], None]
+OnRequirementWritten = Callable[[Optional[str]], None]
 
-def index_requirements_from_files(files: list):
-    db = DbClient("./private/requirements.db")
 
+def index_requirements_from_files(
+    files: Union[UploadedFile, list[UploadedFile]],
+    *args,
+    on_start_file: OnStartFile = None,
+    on_requirement_written: OnRequirementWritten = None,
+) -> tuple[int]:
+    db = get_db_client()
     for i, file in enumerate(files):
-        st.info(f"Processing file {i + 1}: {file.name}")
+        if on_start_file:
+            on_start_file(i + 1, file.name)
         stringio = io.StringIO(file.getvalue().decode("utf-8"))
         reader = csv.reader(stringio)
 
-        if len(list(reader)) <= 3:
-            st.warning(f"The uploaded CSV file {file.name}'s content is too short. "
-                       f"There are {len(list(reader))} lines inside.")
-            continue
+        try:
+            for _ in range(3):
+                next(reader)
+        except StopIteration:
+            raise ValueError(
+                f"The uploaded CSV file {file.name} does not have enough lines. "
+                "Please ensure it has at least 3 lines of data."
+            )
 
-        for _ in range(3):
-            next(reader)
         batch = []
         last_requirement = ""
 
         def write_batch():
-            global batch
+            nonlocal batch
             embeddings = embed_requirements_batch(
                 [requirement for _, requirement in batch]
             )
             for i, (external_id, requirement) in enumerate(batch):
                 embedding = embeddings[i]
                 db.requirements.insert(requirement, embedding, external_id)
+                if on_requirement_written:
+                    on_requirement_written(external_id)
             db.conn.commit()
             batch = []
 
@@ -51,6 +64,4 @@ def index_requirements_from_files(files: list):
     cursor = db.conn.execute("""
     SELECT COUNT(*) FROM Requirements
     """)
-    return cursor.fetchone()
-
-
+    return cursor.fetchone()[0]

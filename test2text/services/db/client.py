@@ -61,3 +61,14 @@ class DbClient:
         self.test_cases.init_table()
         self.annos_to_reqs.init_table()
         self.cases_to_annos.init_table()
+
+    def close(self):
+        # Supposedly, uncommited changes block changes from other connections
+        self.conn.commit()
+        self.conn.close()
+
+    def __del__(self):
+        self.close()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()

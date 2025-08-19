@@ -1,12 +1,8 @@
-import streamlit as st
-import plotly.express as px
-
-from test2text.services.db import DbClient
+from test2text.services.db import get_db_client
 
 
-def show_distances_histogram(db_path="./private/requirements.db"):
-    st.subheader("Distances between annotations and requirements")
-    db = DbClient(db_path)
+def refresh_and_get_distances() -> list[float]:
+    db = get_db_client()
     db.annos_to_reqs.recreate_table()
     # Link requirements to annotations
     annotations = db.conn.execute("""
@@ -15,11 +11,11 @@ def show_distances_histogram(db_path="./private/requirements.db"):
         Requirements.id AS req_id,
         vec_distance_L2(Annotations.embedding, Requirements.embedding) AS distance
     FROM Annotations, Requirements
+    WHERE Annotations.embedding IS NOT NULL AND Requirements.embedding IS NOT NULL
     ORDER BY req_id, distance
     """)
     # Visualize distances
     distances = []
-    st.info("Processing distances")
     current_req_id = None
     current_req_annos = 0
     for i, (anno_id, req_id, distance) in enumerate(annotations.fetchall()):
@@ -33,11 +29,8 @@ def show_distances_histogram(db_path="./private/requirements.db"):
             )
             current_req_annos += 1
     db.conn.commit()
-
-    fig = px.histogram(distances, nbins=100, title="Distances histogram")
-    st.plotly_chart(fig)
-    db.conn.close()
+    return distances
 
 
 if __name__ == "__main__":
-    show_distances_histogram("./private/requirements.db")
+    refresh_and_get_distances()
