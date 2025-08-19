@@ -14,37 +14,37 @@ def show_documentation():
                 
                     ## Application Pages Overview
                 
-                    ### 1. **About application**
+                    ### :gray-badge[:material/info: About application]
                     - **Description:** This page contains the user guide, a description of all pages, and instructions for working with the application.
                     - **How to use:** Simply read the description to understand the purpose of the application.
 
-                    ### 2. **Annotations**
+                    ### :gray-badge[:material/database_upload: Annotations]
                     - **Description:** Work with annotations that link requirements and test cases.
                     - **How to use:**
                       - View existing annotations.
                       - Add new annotations to link requirements and test cases.
                     
-                    ### 3. **Requirements**
+                    ### :gray-badge[:material/database_upload: Requirements]
                     - **Description:** View selected requirements.
                     - **How to use:**
                       - Browse the list of requirements.
                       - Add new requirements.
                       - Link requirements with annotations and test cases.
                     
-                    ### 4. **Reports**
+                    ### :gray-badge[:material/publish: Reports]
                     - **Description:** Generate reports on test cases, requirements, and their relationships.
                     - **How to use:**
                       - Select the desired report type (e.g., by test case or by requirement).
                       - Use filters to refine the report.
                       - Analyze selected requirements or test cases by showed and plotted distances.
                 
-                    ### 5. **Cache distances**
+                    ### :gray-badge[:material/cached: Controls]
                     - **Description:** Update distances by embeddings (vector representations) for intelligent matching of requirements and annotations.
                     - **How to use:**
                       - Enter a search query or embedding.
                       - Get relevant results based on vector search.
                     
-                    ### 6. **Visualize vectors**
+                    ### :gray-badge[:material/dataset: Visualize vectors]
                     - **Description:** Visualise distances by embeddings (vector representations) of requirements and annotations.
                     - **How to use:**
                       - Run script that will get all the data from database and will plot it to 2d and 3d graphics.
