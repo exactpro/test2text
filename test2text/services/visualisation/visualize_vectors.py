@@ -5,7 +5,7 @@ import plotly.graph_objs as go
 
 from sklearn.manifold import TSNE
 from test2text.services.utils.sqlite_vec import unpack_float32
-from test2text.services.db import DbClient
+from test2text.services.db import DbClient, get_db_client
 
 FIG_SIZE = (8, 6)
 FONT_SIZE = 18
