@@ -90,9 +90,13 @@ def make_a_tc_report():
                     {distance_order_sql}TestCases.id
                 """
         data = db.conn.execute(sql, params + [query_embedding_bytes] if distance_sql else params)
+        if distance_sql:
+            tc_dict = {f"#{tc_id} Testcase {test_case} [smart search d={distance}]": tc_id for
+                                 (tc_id, _, test_case, distance) in data.fetchall()}
+        else:
+            tc_dict = {f"#{tc_id} Testcase {test_case}": tc_id for (tc_id, _, test_case) in data.fetchall()}
 
-        tc_dict = {f"#{tc_id} Testcase {test_case}": tc_id for (tc_id, _, test_case) in data.fetchall()}
-        st.subheader("Choose ONE of filtered test casees")
+        st.subheader("Choose ONE of filtered test cases")
         option = st.selectbox(
             "Choose a requirement to work with",
             tc_dict.keys(),
@@ -100,7 +104,6 @@ def make_a_tc_report():
         )
 
         if option:
-
             clause = "Testcases.id = ?"
             if clause in where_clauses:
                 idx = where_clauses.index(clause)
@@ -131,7 +134,7 @@ def make_a_tc_report():
                     st.info("Limit of selected requirements")
 
             if filter_radius:
-                where_clauses.append("distance >= ?")
+                where_clauses.append("distance <= ?")
                 params.append(f"{filter_radius}")
 
             if filter_limit:
