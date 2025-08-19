@@ -3,7 +3,6 @@ import streamlit as st
 from test2text.pages.documentation import show_documentation
 from test2text.pages.upload.annotations import  show_annotations
 from test2text.pages.upload.requirements import  show_requirements
-from test2text.services.embeddings.cache_distances import show_distances_histogram
 from test2text.pages.reports.report_by_req import make_a_report
 from test2text.pages.reports.report_by_tc import make_a_tc_report
 from test2text.services.visualisation.visualize_vectors import  visualize_vectors
