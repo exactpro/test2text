@@ -3,7 +3,7 @@ name = "test2text"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Nikolai Dorofeev - d0rich",email = "dorich2000@gmail.com"}
+    {name = "Nikolai Dorofeev - d0rich", email = "dorich2000@gmail.com", name = "Anna Yamkovaya - anngoroshi", email = "avyamkovaya@gmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.9"
