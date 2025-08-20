@@ -1,4 +1,6 @@
 import sqlite3
+from typing import Union
+
 import sqlite_vec
 import logging
 
@@ -72,3 +74,60 @@ class DbClient:
 
     def __enter__(self):
         return self
+
+    def get_table_names(self):
+        """
+        Returns a list of all user-defined tables in the database.
+
+        :return: List[str] - table names
+        """
+        cursor = self.conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
+        )
+        tables = [row[0] for row in cursor.fetchall()]
+        cursor.close()
+        return tables
+
+
+    @property
+    def get_db_full_info(self):
+        """
+        Returns table information:
+          - row_count: number of records in the table
+          - columns: list of dicts as in get_extended_table_info (name, type, non-NULL count, typeof distribution)
+
+        :return: dict
+        """
+        db_tables_info = {}
+        table_names = self.get_table_names()
+        for table_name in table_names:
+            row_count = self.count_all_entries_in_table(table_name)
+            db_tables_info.update({
+                table_name: row_count,
+            })
+        return db_tables_info
+
+    def count_all_entries_in_table(self, table: str) -> int:
+        count = self.conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+        return count
+
+    def count_notnull_entries_in_table(self,column: str, table: str) -> Union[int, None]:
+        if self.has_column(column, table):
+            count = self.conn.execute(
+                f"SELECT COUNT(*) FROM {table} WHERE {column} IS NOT NULL"
+            ).fetchone()[0]
+            return count
+        return None
+
+    def has_column(self, column_name: str, table_name: str) -> bool:
+        """
+        Returns True if the table has a column, otherwise False.
+
+        :param column_name: name of the column
+        :param table_name: name of the table
+        :return: bool
+        """
+        cursor = self.conn.execute(f'PRAGMA table_info("{table_name}")')
+        columns = [row[1] for row in cursor.fetchall()]  # row[1] is the column name
+        cursor.close()
+        return column_name in columns

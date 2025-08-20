@@ -5,18 +5,7 @@ from test2text.services.db import get_db_client
 BATCH_SIZE = 30
 
 
-def count_all_annotations() -> int:
-    with get_db_client() as db:
-        count = db.conn.execute("SELECT COUNT(*) FROM Annotations").fetchone()[0]
-        return count
 
-
-def count_embedded_annotations() -> int:
-    with get_db_client() as db:
-        count = db.conn.execute(
-            "SELECT COUNT(*) FROM Annotations WHERE embedding IS NOT NULL"
-        ).fetchone()[0]
-        return count
 
 
 OnProgress = Callable[[float], None]
@@ -25,8 +14,8 @@ OnProgress = Callable[[float], None]
 def embed_annotations(*_, embed_all=False, on_progress: OnProgress = None):
     with get_db_client() as db:
         from .embed import embed_annotations_batch
-        annotations_count = count_all_annotations()
-        embedded_annotations_count = count_embedded_annotations()
+        annotations_count = db.count_all_entries_in_table("Annotations")
+        embedded_annotations_count = db.count_embedded_entries_in_table("Annotations")
         if embed_all:
             annotations_to_embed = annotations_count
         else:
