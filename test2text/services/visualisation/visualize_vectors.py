@@ -165,61 +165,60 @@ def plot_2_sets_in_one_3d(
 
 def visualize_vectors():
     st.header("Visualizing vectors")
-    db = get_db_client()
-    Req_tab, Anno_tab, Req_Anno_tab = st.tabs(
-        ["Requirements", "Annotations", "Requirements vs Annotations"]
-    )
-    with Req_tab:
-        st.subheader("Requirements vectors")
-        progress_bar = st.progress(0)
-
-        requirement_vectors = extract_requirement_vectors(db)
-        progress_bar.progress(20, "Extracted")
-        reqs_vectors_2d = minifold_vectors_2d(requirement_vectors)
-        progress_bar.progress(40, "Minifolded for 2D")
-        plot_vectors_2d(reqs_vectors_2d, "Requirements")
-        progress_bar.progress(60, "Plotted in 2D")
-        reqs_vectors_3d = minifold_vectors_3d(requirement_vectors)
-        progress_bar.progress(80, "Minifolded for 3D")
-        plot_vectors_3d(reqs_vectors_3d, "Requirements")
-        progress_bar.progress(100, "Plotted in 3D")
-
-    with Anno_tab:
-        st.subheader("Annotations vectors")
-        progress_bar = st.progress(0)
-
-        annotation_vectors = extract_annotation_vectors(db)
-        progress_bar.progress(20, "Extracted")
-        anno_vectors_2d = minifold_vectors_2d(annotation_vectors)
-        progress_bar.progress(40, "Minifolded for 2D")
-        plot_vectors_2d(anno_vectors_2d, "Annotations")
-        progress_bar.progress(60, "Plotted in 2D")
-        anno_vectors_3d = minifold_vectors_3d(annotation_vectors)
-        progress_bar.progress(80, "Minifolded for 3D")
-        plot_vectors_3d(anno_vectors_3d, "Annotations")
-        progress_bar.progress(100, "Plotted in 3D")
-
-    with Req_Anno_tab:
-        # Show how these 2 groups of vectors are different
-        st.subheader("Requirements vs Annotations")
-        progress_bar = st.progress(40, "Extracted")
-        plot_2_sets_in_one_2d(
-            reqs_vectors_2d, anno_vectors_2d, "Requerements", "Annotations"
+    with get_db_client() as db:
+        Req_tab, Anno_tab, Req_Anno_tab = st.tabs(
+            ["Requirements", "Annotations", "Requirements vs Annotations"]
         )
-        progress_bar.progress(60, "Plotted in 2D")
+        with Req_tab:
+            st.subheader("Requirements vectors")
+            progress_bar = st.progress(0)
 
-        plot_2_sets_in_one_3d(
-            reqs_vectors_3d, anno_vectors_3d, "Requerements", "Annotations"
-        )
-        progress_bar.progress(80, "Plotted in 3D")
+            requirement_vectors = extract_requirement_vectors(db)
+            progress_bar.progress(20, "Extracted")
+            reqs_vectors_2d = minifold_vectors_2d(requirement_vectors)
+            progress_bar.progress(40, "Minifolded for 2D")
+            plot_vectors_2d(reqs_vectors_2d, "Requirements")
+            progress_bar.progress(60, "Plotted in 2D")
+            reqs_vectors_3d = minifold_vectors_3d(requirement_vectors)
+            progress_bar.progress(80, "Minifolded for 3D")
+            plot_vectors_3d(reqs_vectors_3d, "Requirements")
+            progress_bar.progress(100, "Plotted in 3D")
 
-        anno_vectors_2d = minifold_vectors_2d(extract_closest_annotation_vectors(db))
+        with Anno_tab:
+            st.subheader("Annotations vectors")
+            progress_bar = st.progress(0)
 
-        plot_2_sets_in_one_2d(
-            reqs_vectors_2d, anno_vectors_2d, "Requerements", "Annotations"
-        )
-        progress_bar.progress(100, "Minifolded and Plotted in 2D")
-    db.conn.close()
+            annotation_vectors = extract_annotation_vectors(db)
+            progress_bar.progress(20, "Extracted")
+            anno_vectors_2d = minifold_vectors_2d(annotation_vectors)
+            progress_bar.progress(40, "Minifolded for 2D")
+            plot_vectors_2d(anno_vectors_2d, "Annotations")
+            progress_bar.progress(60, "Plotted in 2D")
+            anno_vectors_3d = minifold_vectors_3d(annotation_vectors)
+            progress_bar.progress(80, "Minifolded for 3D")
+            plot_vectors_3d(anno_vectors_3d, "Annotations")
+            progress_bar.progress(100, "Plotted in 3D")
+
+        with Req_Anno_tab:
+            # Show how these 2 groups of vectors are different
+            st.subheader("Requirements vs Annotations")
+            progress_bar = st.progress(40, "Extracted")
+            plot_2_sets_in_one_2d(
+                reqs_vectors_2d, anno_vectors_2d, "Requerements", "Annotations"
+            )
+            progress_bar.progress(60, "Plotted in 2D")
+
+            plot_2_sets_in_one_3d(
+                reqs_vectors_3d, anno_vectors_3d, "Requerements", "Annotations"
+            )
+            progress_bar.progress(80, "Plotted in 3D")
+
+            anno_vectors_2d = minifold_vectors_2d(extract_closest_annotation_vectors(db))
+
+            plot_2_sets_in_one_2d(
+                reqs_vectors_2d, anno_vectors_2d, "Requerements", "Annotations"
+            )
+            progress_bar.progress(100, "Minifolded and Plotted in 2D")
 
 
 if __name__ == "__main__":

@@ -67,8 +67,8 @@ class DbClient:
         self.conn.commit()
         self.conn.close()
 
-    def __del__(self):
-        self.close()
-
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+    def __enter__(self):
+        return self
