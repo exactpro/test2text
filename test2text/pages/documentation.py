@@ -7,55 +7,72 @@ def show_documentation():
 
                     ## About the Application
                 
-                    **Test2Text** is a tool for showing saved test cases, requirements, and annotations, as well as for generating reports and analyzing requirements coverage by tests. 
-                    The application helps automate working with test requirements and provides a convenient interface for analyzing the relationships between test cases and requirements.
-                
-                    ---
-                
-                    ## Application Pages Overview
-                
-                    ### :gray-badge[:material/info: About application]
-                    - **Description:** This page contains the user guide, a description of all pages, and instructions for working with the application.
-                    - **How to use:** Simply read the description to understand the purpose of the application.
-
-                    ### :gray-badge[:material/database_upload: Annotations]
-                    - **Description:** Work with annotations that link requirements and test cases.
-                    - **How to use:**
-                      - View existing annotations.
-                      - Add new annotations to link requirements and test cases.
+                        **Test2Text** is a tool for computing requirement's coverage by tests and generating relevant reports.  
+                        The application provides a convenient interface for analysis the relationships between test cases and requirements.
+                """)
+    st.divider()
+    st.markdown("""
+                    ## HOW TO USE
                     
-                    ### :gray-badge[:material/database_upload: Requirements]
-                    - **Description:** View selected requirements.
-                    - **How to use:**
-                      - Browse the list of requirements.
-                      - Add new requirements.
-                      - Link requirements with annotations and test cases.
+                    ### Upload data
+                        Click :gray-badge[:material/database_upload: Annotations] or :gray-badge[:material/database_upload: Requirements] to upload annotations and requirements from CSV files to the app's database. 
                     
-                    ### :gray-badge[:material/publish: Reports]
-                    - **Description:** Generate reports on test cases, requirements, and their relationships.
-                    - **How to use:**
-                      - Select the desired report type (e.g., by test case or by requirement).
-                      - Use filters to refine the report.
-                      - Analyze selected requirements or test cases by showed and plotted distances.
-                
-                    ### :gray-badge[:material/cached: Controls]
-                    - **Description:** Update distances by embeddings (vector representations) for intelligent matching of requirements and annotations.
-                    - **How to use:**
-                      - Enter a search query or embedding.
-                      - Get relevant results based on vector search.
+                    ### Renew data
+                        Click :gray-badge[:material/cached: Controls] to transform missed and new texts into numeral vectors (embeddings).  
+                        Update distances by embeddings for intelligent matching of requirements and annotations.
                     
-                    ### :gray-badge[:material/dataset: Visualize vectors]
-                    - **Description:** Visualise distances by embeddings (vector representations) of requirements and annotations.
-                    - **How to use:**
-                      - Run script that will get all the data from database and will plot it to 2d and 3d graphics.
-                    ---
-                
-                    ## Usage Tips
+                    ### Generate reports
+                        Click :gray-badge[:material/publish: Requirement's Report] or :gray-badge[:material/publish: Test cases Report] to make a report.  
+                        Use filters to select desired information. Analyze selected requirements or test cases by showed and plotted distances
                     
-                    - Upload annotations and requirements to the app's database. 
-                    - Link test cases with requirements via annotations for better coverage analysis.
-                    - Use filters and search for quick access to the information you need.
-                    - Regularly review reports to monitor the quality of your tests.
-                    - Refer to the "Documentation" page for help on using the application.
+                    ### Visualize saved data 
+                        Click :gray-badge[:material/dataset: Visualize vectors] to plot distances between vector representations of all requirements and annotations.
                 
                 """)
+    st.divider()
+    st.markdown("""    
+                    ### Methodology
+                        The application use a pre-trained transformer model from the [sentence-transformers library](https://huggingface.co/sentence-transformers), specifically [nomic-ai/nomic-embed-text-v1](https://huggingface.co/nomic-ai/nomic-embed-text-v1), a model trained to produce high-quality vector embeddings for text.  
+                        The model returns, for each input text, a high-dimensional NumPy array (vector) of floating point numbers (the embedding).  
+                        This arrays give us a possibility to calculate Euclidian distances between test cases annotations and requirements to view how similar or dissimilar the two texts.  
+                   """)
+
+    st.markdown("""     
+                    #### Euclidean (L2) Distance Formula
+                        The Euclidean (L2) distance is a measure of the straight-line distance between two points (or vectors) in a multidimensional space.  
+                        It is widely used to compute the similarity or dissimilarity between two vector representations, such as text embeddings.
+                    """)
+    st.markdown("""
+                        Suppose we have two vectors:
+                    """)
+    st.latex(r"""
+                        [ \mathbf{a} = [a_1, a_2, ..., a_n] ],
+                """)
+    st.latex(r"""
+                        [ \mathbf{b} = [b_1, b_2, ..., b_n] ]
+                """)
+
+    st.markdown("""
+    The L2 distance between **a** and **b** is calculated as:
+    """)
+
+    st.latex(r"""
+    [ L_2(\mathbf{a}, \mathbf{b}) = \sqrt{(a_1 - b_1)^2 + (a_2 - b_2)^2 + \cdots + (a_n - b_n)^2} ]
+    """)
+
+    st.markdown("""
+    Or, more compactly:
+    """)
+
+    st.latex(r"""
+    [ L_2(\mathbf{a}, \mathbf{b}) = \sqrt{\sum_{i=1}^n (a_i - b_i)^2} ]
+    """)
+
+    st.markdown(""" 
+    - A **smaller L2 distance** means the vectors are more similar.  
+    - A **larger L2 distance** indicates greater dissimilarity.  
+    """)
+
+    st.markdown("""
+    This formula is commonly used for comparing the semantic similarity of embeddings generated from text using models like Sentence Transformers.
+    """)
