@@ -299,7 +299,6 @@ class DbClient:
 
     def get_embeddings_by_id(self, id1: int, from_table: str):
         cursor = self.conn.execute(
-            f"SELECT embedding FROM {from_table} WHERE id = ?",
-            (id1,)
+            f"SELECT embedding FROM {from_table} WHERE id = ?", (id1,)
         )
         return cursor.fetchone()
