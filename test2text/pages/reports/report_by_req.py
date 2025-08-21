@@ -8,6 +8,7 @@ from test2text.services.utils.math_utils import round_distance
 
 def make_a_report():
     from test2text.services.db import get_db_client
+
     with get_db_client() as db:
         from test2text.services.embeddings.embed import embed_requirement
         from test2text.services.utils import unpack_float32

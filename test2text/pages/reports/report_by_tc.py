@@ -8,6 +8,7 @@ from test2text.services.utils.math_utils import round_distance
 
 def make_a_tc_report():
     from test2text.services.db import get_db_client
+
     with get_db_client() as db:
         from test2text.services.embeddings.embed import embed_requirement
         from test2text.services.utils import unpack_float32
@@ -17,7 +18,6 @@ def make_a_tc_report():
             minifold_vectors_3d,
             plot_2_sets_in_one_3d,
         )
-
 
         st.header("Test2Text Report")
 
@@ -29,7 +29,9 @@ def make_a_tc_report():
                 _,
                 distance,
             ) in current_requirements:
-                st.write(f"#{req_id} Requirement {req_external_id} {req_summary} {round_distance(distance)}")
+                st.write(
+                    f"#{req_id} Requirement {req_external_id} {req_summary} {round_distance(distance)}"
+                )
 
         with st.container(border=True):
             st.subheader("Filter test cases")
@@ -97,8 +99,7 @@ def make_a_tc_report():
                 }
             else:
                 tc_dict = {
-                    test_case: tc_id
-                    for (tc_id, _, test_case) in data.fetchall()
+                    test_case: tc_id for (tc_id, _, test_case) in data.fetchall()
                 }
 
             st.subheader("Choose ONE of filtered test cases")
