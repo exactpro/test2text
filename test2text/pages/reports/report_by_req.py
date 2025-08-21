@@ -3,38 +3,26 @@ import numpy as np
 import streamlit as st
 from sqlite_vec import serialize_float32
 
-from test2text.services.db import get_db_client
-from test2text.services.utils import unpack_float32
-from test2text.services.visualisation.visualize_vectors import (
-    minifold_vectors_2d,
-    plot_2_sets_in_one_2d,
-    minifold_vectors_3d,
-    plot_2_sets_in_one_3d,
-)
+from test2text.services.utils.math_utils import round_distance
 
 
 def make_a_report():
+    from test2text.services.db import get_db_client
     with get_db_client() as db:
         from test2text.services.embeddings.embed import embed_requirement
+        from test2text.services.utils import unpack_float32
+        from test2text.services.visualisation.visualize_vectors import (
+            minifold_vectors_2d,
+            plot_2_sets_in_one_2d,
+            minifold_vectors_3d,
+            plot_2_sets_in_one_3d,
+        )
 
         st.header("Test2Text Report")
 
         def write_annotations(current_annotations: set[tuple]):
-            anno, summary, dist = st.columns(3)
-            with anno:
-                st.write("Annonation's id")
-            with summary:
-                st.write("Summary")
-            with dist:
-                st.write("Distance")
             for anno_id, anno_summary, _, distance in current_annotations:
-                anno, summary, dist = st.columns(3)
-                with anno:
-                    st.write(f"{anno_id}")
-                with summary:
-                    st.write(anno_summary)
-                with dist:
-                    st.write(round(distance, 2))
+                st.write(f"{anno_id} {anno_summary} {round_distance(distance)}")
 
         with st.container(border=True):
             st.subheader("Filter requirements")
@@ -97,7 +85,7 @@ def make_a_report():
             )
             if distance_sql:
                 requirements_dict = {
-                    f"#{req_id} Requirement {req_external_id} [smart search d={distance}]": req_id
+                    f"#{req_id} Requirement {req_external_id} [smart search d={round_distance(distance)}]": req_id
                     for (req_id, req_external_id, _, distance) in data.fetchall()
                 }
             else:

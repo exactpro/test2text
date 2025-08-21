@@ -3,31 +3,25 @@ import numpy as np
 import streamlit as st
 from sqlite_vec import serialize_float32
 
-from test2text.services.db import get_db_client
-from test2text.services.utils import unpack_float32
-from test2text.services.visualisation.visualize_vectors import (
-    minifold_vectors_2d,
-    plot_2_sets_in_one_2d,
-    minifold_vectors_3d,
-    plot_2_sets_in_one_3d,
-)
+from test2text.services.utils.math_utils import round_distance
 
 
 def make_a_tc_report():
+    from test2text.services.db import get_db_client
     with get_db_client() as db:
         from test2text.services.embeddings.embed import embed_requirement
+        from test2text.services.utils import unpack_float32
+        from test2text.services.visualisation.visualize_vectors import (
+            minifold_vectors_2d,
+            plot_2_sets_in_one_2d,
+            minifold_vectors_3d,
+            plot_2_sets_in_one_3d,
+        )
+
 
         st.header("Test2Text Report")
 
         def write_requirements(current_requirements: set[tuple]):
-            req, summary, dist = st.columns(3)
-            with req:
-                st.write("Requirement")
-            with summary:
-                st.write("Summary")
-            with dist:
-                st.write("Distance")
-
             for (
                 req_id,
                 req_external_id,
@@ -35,13 +29,7 @@ def make_a_tc_report():
                 _,
                 distance,
             ) in current_requirements:
-                req, summary, dist = st.columns(3)
-                with req:
-                    st.write(f"#{req_id} Requirement {req_external_id}")
-                with summary:
-                    st.write(req_summary)
-                with dist:
-                    st.write(distance)
+                st.write(f"#{req_id} Requirement {req_external_id} {req_summary} {round_distance(distance)}")
 
         with st.container(border=True):
             st.subheader("Filter test cases")
@@ -104,12 +92,12 @@ def make_a_tc_report():
             )
             if distance_sql:
                 tc_dict = {
-                    f"#{tc_id} Testcase {test_case} [smart search d={distance}]": tc_id
+                    f"{test_case} [smart search d={round_distance(distance)}]": tc_id
                     for (tc_id, _, test_case, distance) in data.fetchall()
                 }
             else:
                 tc_dict = {
-                    f"#{tc_id} Testcase {test_case}": tc_id
+                    test_case: tc_id
                     for (tc_id, _, test_case) in data.fetchall()
                 }
 
