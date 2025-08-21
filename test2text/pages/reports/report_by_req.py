@@ -7,6 +7,7 @@ from test2text.services.utils.math_utils import round_distance
 
 SUMMARY_LENGTH = 100
 
+
 def make_a_report():
     from test2text.services.db import get_db_client
 
@@ -282,7 +283,6 @@ def make_a_report():
                                                 "Annotations",
                                                 first_labels=[f"{req_external_id}"],
                                                 second_labels=anno_labels,
-
                                             )
                                         else:
                                             reqs_vectors_3d = minifold_vectors_3d(

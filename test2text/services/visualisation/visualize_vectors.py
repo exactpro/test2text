@@ -103,7 +103,7 @@ def plot_2_sets_in_one_2d(
     first_color="red",
     second_color="green",
     first_labels=None,
-    second_labels=None
+    second_labels=None,
 ):
     fig = go.Figure()
     fig.add_trace(
@@ -142,7 +142,7 @@ def plot_2_sets_in_one_3d(
     first_color="red",
     second_color="green",
     first_labels=None,
-    second_labels=None
+    second_labels=None,
 ):
     fig = go.Figure()
     fig.add_trace(
@@ -154,7 +154,7 @@ def plot_2_sets_in_one_3d(
             name=first_title,
             text=first_labels,
             textposition="top left",
-            marker=dict(color=f"{first_color}")
+            marker=dict(color=f"{first_color}"),
         )
     )
 
@@ -167,7 +167,7 @@ def plot_2_sets_in_one_3d(
             name=second_title,
             text=second_labels,
             textposition="top center",
-            marker=dict(color=f"{second_color}")
+            marker=dict(color=f"{second_color}"),
         )
     )
 

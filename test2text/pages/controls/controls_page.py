@@ -5,7 +5,6 @@ def controls_page():
     import streamlit as st
     import plotly.express as px
 
-
     st.header("Controls page")
     embedding_col, distances_col = st.columns(2)
     with embedding_col:
@@ -13,8 +12,12 @@ def controls_page():
 
         def refresh_counts():
             with get_db_client() as db:
-                st.session_state["all_annotations_count"] = db.count_all_entries_in_table("Annotations")
-                st.session_state["embedded_annotations_count"] = db.count_embedded_entries_in_table("Annotations")
+                st.session_state["all_annotations_count"] = (
+                    db.count_all_entries_in_table("Annotations")
+                )
+                st.session_state["embedded_annotations_count"] = (
+                    db.count_embedded_entries_in_table("Annotations")
+                )
 
         refresh_counts()
 

@@ -8,6 +8,7 @@ from test2text.services.utils.math_utils import round_distance
 
 SUMMARY_LENGTH = 100
 
+
 def make_a_tc_report():
     from test2text.services.db import get_db_client
 
@@ -32,8 +33,7 @@ def make_a_tc_report():
                 _,
                 distance,
             ) in current_requirements:
-                st.write(req_external_id, req_summary, round_distance(distance)
-                )
+                st.write(req_external_id, req_summary, round_distance(distance))
 
         with st.container(border=True):
             st.subheader("Filter test cases")
@@ -52,7 +52,6 @@ def make_a_tc_report():
 
             where_clauses = []
             params = []
-
 
             if filter_summary.strip():
                 where_clauses.append("Testcases.test_case LIKE ?")
