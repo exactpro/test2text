@@ -18,7 +18,7 @@ def index_requirements_from_files(
     *args,
     on_start_file: OnStartFile = None,
     on_requirement_written: OnRequirementWritten = None,
-) -> tuple[int]:
+) -> int:
     with get_db_client() as db:
         for i, file in enumerate(files):
             if on_start_file:
@@ -61,7 +61,4 @@ def index_requirements_from_files(
                     write_batch()
             write_batch()
         # Check requirements
-        cursor = db.conn.execute("""
-        SELECT COUNT(*) FROM Requirements
-        """)
-        return cursor.fetchone()[0]
+        return db.count_all_entries(from_table="Requirements")

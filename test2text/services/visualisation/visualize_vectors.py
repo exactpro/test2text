@@ -15,7 +15,7 @@ DOT_SIZE_3D = 10
 
 def extract_annotation_vectors(db: DbClient):
     vectors = []
-    embeddings = db.conn.execute("SELECT embedding FROM Annotations")
+    embeddings = db.get_column_values("embedding", "Annotations")
     if embeddings.fetchone() is None:
         st.error("Embeddings is empty. Please fill embeddings in annotations.")
         return None
@@ -27,23 +27,18 @@ def extract_annotation_vectors(db: DbClient):
 
 def extract_closest_annotation_vectors(db: DbClient):
     vectors = []
-    embeddings = db.conn.execute("""
-    SELECT embedding FROM Annotations
-    WHERE id IN (
-    SELECT DISTINCT annotation_id FROM AnnotationsToRequirements
-    )
-    """)
-    if embeddings.fetchone() is None:
+    embeddings = db.get_embeddings_from_annotations_to_requirements_table()
+    if not embeddings:
         st.error("Embeddings is empty. Please calculate and cache distances.")
         return None
-    for row in embeddings.fetchall():
+    for row in embeddings:
         vectors.append(np.array(unpack_float32(row[0])))
     return np.array(vectors)
 
 
 def extract_requirement_vectors(db: DbClient):
     vectors = []
-    embeddings = db.conn.execute("SELECT embedding FROM Requirements")
+    embeddings = db.get_column_values("embedding", "Requirements")
     if embeddings.fetchone() is None:
         st.error("Embeddings is empty. Please fill embeddings in requirements.")
         return None

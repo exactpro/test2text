@@ -66,26 +66,13 @@ def make_a_tc_report():
                 distance_sql = ", vec_distance_L2(embedding, ?) AS distance"
                 distance_order_sql = "distance ASC, "
 
-            where_sql = ""
-            if where_clauses:
-                where_sql = f"WHERE {' AND '.join(where_clauses)}"
-
         with st.container(border=True):
             st.session_state.update({"tc_form_submitting": True})
-            sql = f"""
-                    SELECT
-                        TestCases.id as case_id,
-                        TestCases.test_script as test_script,
-                        TestCases.test_case as test_case
-                        {distance_sql}
-                    FROM
-                        TestCases
-                    {where_sql}
-                    ORDER BY
-                        {distance_order_sql}TestCases.id
-                    """
-            data = db.conn.execute(
-                sql, params + [query_embedding_bytes] if distance_sql else params
+            data = db.get_ordered_values_from_test_cases(
+                distance_sql,
+                where_clauses,
+                distance_order_sql,
+                params + [query_embedding_bytes] if distance_sql else params,
             )
             if distance_sql:
                 tc_dict = {
@@ -136,39 +123,8 @@ def make_a_tc_report():
                 if filter_limit:
                     params.append(f"{filter_limit}")
 
-                where_sql = ""
-                if where_clauses:
-                    where_sql = f"WHERE {' AND '.join(where_clauses)}"
+                rows = db.join_all_tables_by_test_cases(where_clauses, params)
 
-                sql = f"""
-                    SELECT
-                        TestCases.id as case_id,
-                        TestCases.test_script as test_script,
-                        TestCases.test_case as test_case,
-            
-                        Annotations.id as anno_id,
-                        Annotations.summary as anno_summary,
-                        Annotations.embedding as anno_embedding,
-            
-                        AnnotationsToRequirements.cached_distance as distance,
-            
-                        Requirements.id as req_id,
-                        Requirements.external_id as req_external_id,
-                        Requirements.summary as req_summary,
-                        Requirements.embedding as req_embedding
-                    FROM
-                        TestCases
-                            JOIN CasesToAnnos ON TestCases.id = CasesToAnnos.case_id
-                            JOIN Annotations ON Annotations.id = CasesToAnnos.annotation_id
-                            JOIN AnnotationsToRequirements ON Annotations.id = AnnotationsToRequirements.annotation_id
-                            JOIN Requirements ON Requirements.id = AnnotationsToRequirements.requirement_id
-                    {where_sql}
-                    ORDER BY
-                        case_id, distance, req_id
-                    LIMIT ?
-                    """
-                data = db.conn.execute(sql, params)
-                rows = data.fetchall()
                 if not rows:
                     st.error(
                         "There is no requested data to inspect.\n"

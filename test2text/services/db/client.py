@@ -88,6 +88,10 @@ class DbClient:
         cursor.close()
         return tables
 
+    def get_column_values(self, columns: list[str], from_table: str):
+        cursor = self.conn.execute(f"SELECT {', '.join(columns)} FROM {from_table}")
+        return cursor.fetchall()
+
     @property
     def get_db_full_info(self):
         """
@@ -100,7 +104,7 @@ class DbClient:
         db_tables_info = {}
         table_names = self.get_table_names()
         for table_name in table_names:
-            row_count = self.count_all_entries_in_table(table_name)
+            row_count = self.count_all_entries(table_name)
             db_tables_info.update(
                 {
                     table_name: row_count,
@@ -108,19 +112,17 @@ class DbClient:
             )
         return db_tables_info
 
-    def count_all_entries_in_table(self, table: str) -> int:
-        count = self.conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+    def count_all_entries(self, from_table: str) -> int:
+        count = self.conn.execute(f"SELECT COUNT(*) FROM {from_table}").fetchone()[0]
         return count
 
-    def count_notnull_entries_in_table(
-        self, column: str, table: str
+    def count_notnull_entries(
+        self, columns: list[str], from_table: str
     ) -> Union[int, None]:
-        if self.has_column(column, table):
-            count = self.conn.execute(
-                f"SELECT COUNT(*) FROM {table} WHERE {column} IS NOT NULL"
-            ).fetchone()[0]
-            return count
-        return None
+        count = self.conn.execute(
+            f"SELECT COUNT(*) FROM {from_table} WHERE {', '.join(columns)} IS NOT NULL"
+        ).fetchone()[0]
+        return count
 
     def has_column(self, column_name: str, table_name: str) -> bool:
         """
@@ -134,3 +136,163 @@ class DbClient:
         columns = [row[1] for row in cursor.fetchall()]  # row[1] is the column name
         cursor.close()
         return column_name in columns
+
+    def get_null_entries(self, from_table: str) -> list:
+        cursor = self.conn.execute(
+            f"SELECT id, summary FROM {from_table} WHERE embedding IS NULL"
+        )
+        return cursor.fetchall()
+
+    def get_distances(self) -> list[tuple[int, int, float]]:
+        """
+        Returns a list of tuples containing the id of the annotation and the id of the requirement,
+        and the distance between their embeddings (anno_id, req_id, distance).
+        The distance is calculated using the L2 norm. The results are ordered by requirement ID and distance.
+        """
+        cursor = self.conn.execute("""
+                SELECT 
+                    Annotations.id AS anno_id,
+                    Requirements.id AS req_id,
+                    vec_distance_L2(Annotations.embedding, Requirements.embedding) AS distance
+                FROM Annotations, Requirements
+                WHERE Annotations.embedding IS NOT NULL AND Requirements.embedding IS NOT NULL
+                ORDER BY req_id, distance
+                """)
+        return cursor.fetchall()
+
+    def get_embeddings_from_annotations_to_requirements_table(self):
+        """
+        Returns a list of annotation's embeddings that are stored in the AnnotationsToRequirements table.
+        The embeddings are ordered by annotation ID.
+        """
+        cursor = self.conn.execute("""
+            SELECT embedding FROM Annotations
+            WHERE id IN (
+            SELECT DISTINCT annotation_id FROM AnnotationsToRequirements
+            )
+            """)
+        return cursor.fetchall()
+
+    def join_all_tables_by_requirements(
+        self, where_clauses="", params=None
+    ) -> list[tuple]:
+        """
+        Join all tables related to requirements based on the provided where clauses and parameters.
+        return a list of tuples containing :
+            req_id,
+            req_external_id,
+            req_summary,
+            req_embedding,
+            anno_id,
+            anno_summary,
+            anno_embedding,
+            distance,
+            case_id,
+            test_script,
+            test_case
+        """
+        where_sql = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
+        sql = f"""
+                            SELECT
+                                Requirements.id as req_id,
+                                Requirements.external_id as req_external_id,
+                                Requirements.summary as req_summary,
+                                Requirements.embedding as req_embedding,
+
+                                Annotations.id as anno_id,
+                                Annotations.summary as anno_summary,
+                                Annotations.embedding as anno_embedding,
+
+                                AnnotationsToRequirements.cached_distance as distance,
+
+                                TestCases.id as case_id,
+                                TestCases.test_script as test_script,
+                                TestCases.test_case as test_case
+                            FROM
+                                Requirements
+                                    JOIN AnnotationsToRequirements ON Requirements.id = AnnotationsToRequirements.requirement_id
+                                    JOIN Annotations ON Annotations.id = AnnotationsToRequirements.annotation_id
+                                    JOIN CasesToAnnos ON Annotations.id = CasesToAnnos.annotation_id
+                                    JOIN TestCases ON TestCases.id = CasesToAnnos.case_id
+                            {where_sql}
+                            ORDER BY
+                                Requirements.id, AnnotationsToRequirements.cached_distance, TestCases.id
+                            LIMIT ?
+                """
+        data = self.conn.execute(sql, params)
+        return data.fetchall()
+
+    def get_ordered_values_from_requirements(
+        self, distance_sql="", where_clauses="", distance_order_sql="", params=None
+    ) -> list[tuple]:
+        where_sql = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
+        sql = f"""
+                            SELECT
+                                Requirements.id as req_id,
+                                Requirements.external_id as req_external_id,
+                                Requirements.summary as req_summary
+                                {distance_sql}
+                            FROM
+                                Requirements
+                            {where_sql}
+                            ORDER BY
+                                {distance_order_sql}Requirements.id
+                            """
+        data = self.conn.execute(sql, params)
+        return data.fetchall()
+
+    def get_ordered_values_from_test_cases(
+        self, distance_sql="", where_clauses="", distance_order_sql="", params=None
+    ) -> list[tuple]:
+        where_sql = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
+        sql = f"""
+                            SELECT
+                                TestCases.id as case_id,
+                                TestCases.test_script as test_script,
+                                TestCases.test_case as test_case
+                                {distance_sql}
+                            FROM
+                                TestCases
+                            {where_sql}
+                            ORDER BY
+                                {distance_order_sql}TestCases.id
+                            """
+        data = self.conn.execute(sql, params)
+        return data.fetchall()
+
+    def join_all_tables_by_test_cases(
+        self, where_clauses="", params=None
+    ) -> list[tuple]:
+        where_sql = ""
+        if where_clauses:
+            where_sql = f"WHERE {' AND '.join(where_clauses)}"
+
+        sql = f"""
+                            SELECT
+                                TestCases.id as case_id,
+                                TestCases.test_script as test_script,
+                                TestCases.test_case as test_case,
+
+                                Annotations.id as anno_id,
+                                Annotations.summary as anno_summary,
+                                Annotations.embedding as anno_embedding,
+
+                                AnnotationsToRequirements.cached_distance as distance,
+
+                                Requirements.id as req_id,
+                                Requirements.external_id as req_external_id,
+                                Requirements.summary as req_summary,
+                                Requirements.embedding as req_embedding
+                            FROM
+                                TestCases
+                                    JOIN CasesToAnnos ON TestCases.id = CasesToAnnos.case_id
+                                    JOIN Annotations ON Annotations.id = CasesToAnnos.annotation_id
+                                    JOIN AnnotationsToRequirements ON Annotations.id = AnnotationsToRequirements.annotation_id
+                                    JOIN Requirements ON Requirements.id = AnnotationsToRequirements.requirement_id
+                            {where_sql}
+                            ORDER BY
+                                case_id, distance, req_id
+                            LIMIT ?
+                            """
+        data = self.conn.execute(sql, params)
+        return data.fetchall()

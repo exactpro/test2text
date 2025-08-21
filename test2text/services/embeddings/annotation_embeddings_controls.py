@@ -30,12 +30,9 @@ def embed_annotations(*_, embed_all=False, on_progress: OnProgress = None):
                 db.annotations.set_embedding(anno_id, embedding)
             db.conn.commit()
 
-        annotations = db.conn.execute(f"""
-        SELECT id, summary FROM Annotations
-        {"WHERE embedding IS NULL" if not embed_all else ""}
-        """)
+        annotations = db.get_null_entries(from_table="Annotations")
 
-        for i, (anno_id, summary) in enumerate(annotations.fetchall()):
+        for i, (anno_id, summary) in enumerate(annotations):
             if on_progress:
                 on_progress((i + 1) / annotations_to_embed)
             batch.append((anno_id, summary))

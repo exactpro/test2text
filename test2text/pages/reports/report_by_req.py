@@ -66,36 +66,24 @@ def make_a_report():
                 distance_sql = ", vec_distance_L2(embedding, ?) AS distance"
                 distance_order_sql = "distance ASC, "
 
-            where_sql = ""
-            if where_clauses:
-                where_sql = f"WHERE {' AND '.join(where_clauses)}"
-
         with st.container(border=True):
             st.session_state.update({"req_form_submitting": True})
-            sql = f"""
-                    SELECT
-                        Requirements.id as req_id,
-                        Requirements.external_id as req_external_id,
-                        Requirements.summary as req_summary
-                        {distance_sql}
-                    FROM
-                        Requirements
-                    {where_sql}
-                    ORDER BY
-                        {distance_order_sql}Requirements.id
-                    """
-            data = db.conn.execute(
-                sql, params + [query_embedding_bytes] if distance_sql else params
+            data = db.get_ordered_values_from_requirements(
+                distance_sql,
+                where_clauses,
+                distance_order_sql,
+                params + [query_embedding_bytes] if distance_sql else params,
             )
+
             if distance_sql:
                 requirements_dict = {
                     f"{req_external_id} {summary[:SUMMARY_LENGTH]}... [smart search d={round_distance(distance)}]": req_id
-                    for (req_id, req_external_id, summary, distance) in data.fetchall()
+                    for (req_id, req_external_id, summary, distance) in data
                 }
             else:
                 requirements_dict = {
                     f"{req_external_id} {summary[:SUMMARY_LENGTH]}...": req_id
-                    for (req_id, req_external_id, summary) in data.fetchall()
+                    for (req_id, req_external_id, summary) in data
                 }
 
             st.subheader("Choose 1 of filtered requirements")
@@ -144,39 +132,8 @@ def make_a_report():
                 if filter_limit:
                     params.append(f"{filter_limit}")
 
-                where_sql = ""
-                if where_clauses:
-                    where_sql = f"WHERE {' AND '.join(where_clauses)}"
+                rows = db.join_all_tables_by_requirements(where_clauses, params)
 
-                sql = f"""
-                    SELECT
-                        Requirements.id as req_id,
-                        Requirements.external_id as req_external_id,
-                        Requirements.summary as req_summary,
-                        Requirements.embedding as req_embedding,
-            
-                        Annotations.id as anno_id,
-                        Annotations.summary as anno_summary,
-                        Annotations.embedding as anno_embedding,
-            
-                        AnnotationsToRequirements.cached_distance as distance,
-            
-                        TestCases.id as case_id,
-                        TestCases.test_script as test_script,
-                        TestCases.test_case as test_case
-                    FROM
-                        Requirements
-                            JOIN AnnotationsToRequirements ON Requirements.id = AnnotationsToRequirements.requirement_id
-                            JOIN Annotations ON Annotations.id = AnnotationsToRequirements.annotation_id
-                            JOIN CasesToAnnos ON Annotations.id = CasesToAnnos.annotation_id
-                            JOIN TestCases ON TestCases.id = CasesToAnnos.case_id
-                    {where_sql}
-                    ORDER BY
-                        Requirements.id, AnnotationsToRequirements.cached_distance, TestCases.id
-                    LIMIT ?
-                    """
-                data = db.conn.execute(sql, params)
-                rows = data.fetchall()
                 if not rows:
                     st.error(
                         "There is no requested data to inspect.\n"
