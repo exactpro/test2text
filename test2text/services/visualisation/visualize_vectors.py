@@ -100,16 +100,20 @@ def plot_2_sets_in_one_2d(
     second_set_of_vec,
     first_title,
     second_title,
-    first_color="blue",
+    first_color="red",
     second_color="green",
+    first_labels=None,
+    second_labels=None
 ):
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
             x=first_set_of_vec[:, 0],
             y=first_set_of_vec[:, 1],
-            mode="markers",
+            mode="markers+text",
             name=first_title,
+            text=first_labels,
+            textposition="top center",
             marker=dict(color=f"{first_color}"),
         )
     )
@@ -117,8 +121,10 @@ def plot_2_sets_in_one_2d(
         go.Scatter(
             x=second_set_of_vec[:, 0],
             y=second_set_of_vec[:, 1],
-            mode="markers",
+            mode="markers+text",
             name=second_title,
+            text=second_labels,
+            textposition="top center",
             marker=dict(color=f"{second_color}"),
         )
     )
@@ -129,7 +135,14 @@ def plot_2_sets_in_one_2d(
 
 
 def plot_2_sets_in_one_3d(
-    first_set_of_vec, second_set_of_vec, first_title, second_title
+    first_set_of_vec,
+    second_set_of_vec,
+    first_title,
+    second_title,
+    first_color="red",
+    second_color="green",
+    first_labels=None,
+    second_labels=None
 ):
     fig = go.Figure()
     fig.add_trace(
@@ -137,8 +150,11 @@ def plot_2_sets_in_one_3d(
             x=first_set_of_vec[:, 0],
             y=first_set_of_vec[:, 1],
             z=first_set_of_vec[:, 2],
-            mode="markers",
+            mode="markers+text",
             name=first_title,
+            text=first_labels,
+            textposition="top left",
+            marker=dict(color=f"{first_color}")
         )
     )
 
@@ -147,8 +163,11 @@ def plot_2_sets_in_one_3d(
             x=second_set_of_vec[:, 0],
             y=second_set_of_vec[:, 1],
             z=second_set_of_vec[:, 2],
-            mode="markers",
+            mode="markers+text",
             name=second_title,
+            text=second_labels,
+            textposition="top center",
+            marker=dict(color=f"{second_color}")
         )
     )
 

@@ -6,6 +6,8 @@ from sqlite_vec import serialize_float32
 from test2text.services.utils.math_utils import round_distance
 
 
+SUMMARY_LENGTH = 100
+
 def make_a_tc_report():
     from test2text.services.db import get_db_client
 
@@ -272,6 +274,12 @@ def make_a_tc_report():
                                                 reqs_by_anno[radio_choice]
                                             ]
                                         ]
+                                        req_labels = [
+                                            f"{ext_id}"
+                                            for _, ext_id, req_sum, _, _ in current_annotations[
+                                                reqs_by_anno[radio_choice]
+                                            ]
+                                        ]
                                         annotation_vectors = np.array(
                                             [np.array(unpack_float32(anno_embedding))]
                                         )
@@ -282,10 +290,10 @@ def make_a_tc_report():
                                                 minifold_vectors_2d(
                                                     requirement_vectors
                                                 ),
-                                                "Annotation",
-                                                "Requirements",
-                                                first_color="red",
-                                                second_color="green",
+                                                first_title="Annotation",
+                                                second_title="Requirements",
+                                                first_labels=radio_choice,
+                                                second_labels=req_labels,
                                             )
                                         else:
                                             reqs_vectors_3d = minifold_vectors_3d(
@@ -297,8 +305,10 @@ def make_a_tc_report():
                                             plot_2_sets_in_one_3d(
                                                 anno_vectors_3d,
                                                 reqs_vectors_3d,
-                                                "Annotation",
-                                                "Requirements",
+                                                first_title="Annotation",
+                                                second_title="Requirements",
+                                                first_labels=radio_choice,
+                                                second_labels=req_labels,
                                             )
 
 

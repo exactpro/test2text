@@ -5,7 +5,7 @@ from sqlite_vec import serialize_float32
 
 from test2text.services.utils.math_utils import round_distance
 
-SUMMARY_LENGHT = 100
+SUMMARY_LENGTH = 100
 
 def make_a_report():
     from test2text.services.db import get_db_client
@@ -88,12 +88,12 @@ def make_a_report():
             )
             if distance_sql:
                 requirements_dict = {
-                    f"{req_external_id} {summary[:SUMMARY_LENGHT]}... [smart search d={round_distance(distance)}]": req_id
+                    f"{req_external_id} {summary[:SUMMARY_LENGTH]}... [smart search d={round_distance(distance)}]": req_id
                     for (req_id, req_external_id, summary, distance) in data.fetchall()
                 }
             else:
                 requirements_dict = {
-                    f"{req_external_id} {summary[:SUMMARY_LENGHT]}...": req_id
+                    f"{req_external_id} {summary[:SUMMARY_LENGTH]}...": req_id
                     for (req_id, req_external_id, summary) in data.fetchall()
                 }
 
@@ -262,6 +262,12 @@ def make_a_report():
                                                 st.session_state["radio_choice"]
                                             ]
                                         ]
+                                        anno_labels = [
+                                            f"{anno_id} {anno_sum[:SUMMARY_LENGTH]}"
+                                            for anno_id, anno_sum, _, _ in current_test_cases[
+                                                st.session_state["radio_choice"]
+                                            ]
+                                        ]
                                         requirement_vectors = np.array(
                                             [np.array(unpack_float32(req_embedding))]
                                         )
@@ -274,8 +280,9 @@ def make_a_report():
                                                 minifold_vectors_2d(annotation_vectors),
                                                 "Requirement",
                                                 "Annotations",
-                                                first_color="red",
-                                                second_color="green",
+                                                first_labels=[f"{req_external_id}"],
+                                                second_labels=anno_labels,
+
                                             )
                                         else:
                                             reqs_vectors_3d = minifold_vectors_3d(
@@ -289,6 +296,8 @@ def make_a_report():
                                                 anno_vectors_3d,
                                                 "Requirement",
                                                 "Annotations",
+                                                first_labels=[f"{req_external_id}"],
+                                                second_labels=anno_labels,
                                             )
 
 
