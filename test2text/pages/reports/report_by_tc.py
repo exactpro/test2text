@@ -249,9 +249,9 @@ def make_a_tc_report():
                                     """
                                                <style>
                                                       .stRadio > div {
-                                                                   max-width: 350px;
+                                                                   max-width: 100%;
                                                                    word-break: break-word;
-                                                                   white-space: pre-line;
+                                                                   white-space: normal;
                                                                }
                                                       </style>
                                            """,
