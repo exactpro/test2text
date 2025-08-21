@@ -67,11 +67,7 @@ class TestAnnotationsTable(TestCase):
             orig_embedding = [0.1] * self.db.annotations.embedding_size
             self.db.annotations.set_embedding(id1, orig_embedding)
             self.db.conn.commit()
-            cursor = self.db.conn.execute(
-                "SELECT embedding FROM Annotations WHERE id = ?", (id1,)
-            )
-            result = cursor.fetchone()
-            cursor.close()
+            result = self.db.get_embeddings_by_id(id1, "Annotations")
             self.assertIsNotNone(result)
             read_embedding = unpack_float32(result[0])
             self.assertEqual(len(read_embedding), self.db.annotations.embedding_size)
@@ -80,11 +76,7 @@ class TestAnnotationsTable(TestCase):
             new_embedding = [0.9] * self.db.annotations.embedding_size
             self.db.annotations.set_embedding(id1, new_embedding)
             self.db.conn.commit()
-            cursor = self.db.conn.execute(
-                "SELECT embedding FROM Annotations WHERE id = ?", (id1,)
-            )
-            result = cursor.fetchone()
-            cursor.close()
+            result = self.db.get_embeddings_by_id(id1, "Annotations")
             self.assertIsNotNone(result)
             read_embedding = unpack_float32(result[0])
             self.assertEqual(len(read_embedding), self.db.annotations.embedding_size)
