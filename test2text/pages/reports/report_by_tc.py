@@ -22,24 +22,21 @@ def make_a_tc_report():
         st.header("Test2Text Report")
 
         def write_requirements(current_requirements: set[tuple]):
+            st.write("External id,", "Summary,", "Distance")
             for (
-                req_id,
+                _,
                 req_external_id,
                 req_summary,
                 _,
                 distance,
             ) in current_requirements:
-                st.write(
-                    f"#{req_id} Requirement {req_external_id} {req_summary} {round_distance(distance)}"
+                st.write(req_external_id, req_summary, round_distance(distance)
                 )
 
         with st.container(border=True):
             st.subheader("Filter test cases")
             with st.expander("🔍 Filters"):
-                r_id, summary, embed = st.columns(3)
-                with r_id:
-                    filter_id = st.text_input("ID", value="", key="filter_id")
-                    st.info("Filter by external ID")
+                summary, embed = st.columns(2)
                 with summary:
                     filter_summary = st.text_input(
                         "Text content", value="", key="filter_summary"
@@ -54,9 +51,6 @@ def make_a_tc_report():
             where_clauses = []
             params = []
 
-            if filter_id.strip():
-                where_clauses.append("Testcases.id = ?")
-                params.append(filter_id.strip())
 
             if filter_summary.strip():
                 where_clauses.append("Testcases.test_case LIKE ?")
@@ -108,13 +102,8 @@ def make_a_tc_report():
             )
 
             if option:
-                clause = "Testcases.id = ?"
-                if clause in where_clauses:
-                    idx = where_clauses.index(clause)
-                    params.insert(idx, tc_dict[option])
-                else:
-                    where_clauses.append(clause)
-                    params.append(tc_dict[option])
+                where_clauses.append("Testcases.id = ?")
+                params.append(tc_dict[option])
 
                 st.subheader("Filter Requirements")
 

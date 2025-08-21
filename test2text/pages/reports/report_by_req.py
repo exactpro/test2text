@@ -5,6 +5,7 @@ from sqlite_vec import serialize_float32
 
 from test2text.services.utils.math_utils import round_distance
 
+SUMMARY_LENGHT = 100
 
 def make_a_report():
     from test2text.services.db import get_db_client
@@ -22,8 +23,9 @@ def make_a_report():
         st.header("Test2Text Report")
 
         def write_annotations(current_annotations: set[tuple]):
+            st.write("id,", "Summary,", "Distance")
             for anno_id, anno_summary, _, distance in current_annotations:
-                st.write(f"{anno_id} {anno_summary} {round_distance(distance)}")
+                st.write(anno_id, anno_summary, round_distance(distance))
 
         with st.container(border=True):
             st.subheader("Filter requirements")
@@ -86,13 +88,13 @@ def make_a_report():
             )
             if distance_sql:
                 requirements_dict = {
-                    f"#{req_id} Requirement {req_external_id} [smart search d={round_distance(distance)}]": req_id
-                    for (req_id, req_external_id, _, distance) in data.fetchall()
+                    f"{req_external_id} {summary[:SUMMARY_LENGHT]}... [smart search d={round_distance(distance)}]": req_id
+                    for (req_id, req_external_id, summary, distance) in data.fetchall()
                 }
             else:
                 requirements_dict = {
-                    f"#{req_id} Requirement {req_external_id}": req_id
-                    for (req_id, req_external_id, _) in data.fetchall()
+                    f"{req_external_id} {summary[:SUMMARY_LENGHT]}...": req_id
+                    for (req_id, req_external_id, summary) in data.fetchall()
                 }
 
             st.subheader("Choose 1 of filtered requirements")
