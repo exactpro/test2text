@@ -16,6 +16,7 @@ from test2text.services.visualisation.visualize_vectors import (
 def make_a_report():
     with get_db_client() as db:
         from test2text.services.embeddings.embed import embed_requirement
+
         st.header("Test2Text Report")
 
         def write_annotations(current_annotations: set[tuple]):
@@ -127,7 +128,10 @@ def make_a_report():
                     radius, limit = st.columns(2)
                     with radius:
                         filter_radius = st.number_input(
-                            "Insert a radius", value=1.00, step=0.01, key="filter_radius"
+                            "Insert a radius",
+                            value=1.00,
+                            step=0.01,
+                            key="filter_radius",
                         )
                         st.info("Max distance to annotation")
                     with limit:
@@ -188,9 +192,12 @@ def make_a_report():
                     )
                     return None
 
-                for (req_id, req_external_id, req_summary, req_embedding), group in groupby(
-                    rows, lambda x: x[0:4]
-                ):
+                for (
+                    req_id,
+                    req_external_id,
+                    req_summary,
+                    req_embedding,
+                ), group in groupby(rows, lambda x: x[0:4]):
                     st.divider()
                     with st.container():
                         st.subheader(f" Inspect Requirement {req_external_id}")
@@ -209,7 +216,9 @@ def make_a_report():
                             test_script,
                             test_case,
                         ) in group:
-                            current_annotation = current_test_cases.get(test_case, set())
+                            current_annotation = current_test_cases.get(
+                                test_case, set()
+                            )
                             current_test_cases.update({test_case: current_annotation})
                             current_test_cases[test_case].add(
                                 (anno_id, anno_summary, anno_embedding, distance)
@@ -242,7 +251,9 @@ def make_a_report():
                                 with anno:
                                     with st.container(border=True):
                                         st.write("Annotations")
-                                        st.info("List of Annotations for chosen Test case")
+                                        st.info(
+                                            "List of Annotations for chosen Test case"
+                                        )
                                         write_annotations(
                                             current_annotations=current_test_cases[
                                                 st.session_state["radio_choice"]
@@ -266,7 +277,9 @@ def make_a_report():
                                         annotation_vectors = np.array(anno_embeddings)
                                         if select == "2D":
                                             plot_2_sets_in_one_2d(
-                                                minifold_vectors_2d(requirement_vectors),
+                                                minifold_vectors_2d(
+                                                    requirement_vectors
+                                                ),
                                                 minifold_vectors_2d(annotation_vectors),
                                                 "Requirement",
                                                 "Annotations",

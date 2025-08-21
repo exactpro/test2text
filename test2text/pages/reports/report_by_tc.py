@@ -16,6 +16,7 @@ from test2text.services.visualisation.visualize_vectors import (
 def make_a_tc_report():
     with get_db_client() as db:
         from test2text.services.embeddings.embed import embed_requirement
+
         st.header("Test2Text Report")
 
         def write_requirements(current_requirements: set[tuple]):
@@ -27,7 +28,13 @@ def make_a_tc_report():
             with dist:
                 st.write("Distance")
 
-            for req_id, req_external_id, req_summary, _, distance in current_requirements:
+            for (
+                req_id,
+                req_external_id,
+                req_summary,
+                _,
+                distance,
+            ) in current_requirements:
                 req, summary, dist = st.columns(3)
                 with req:
                     st.write(f"#{req_id} Requirement {req_external_id}")
@@ -126,7 +133,10 @@ def make_a_tc_report():
                     radius, limit = st.columns(2)
                     with radius:
                         filter_radius = st.number_input(
-                            "Insert a radius", value=1.00, step=0.01, key="filter_radius"
+                            "Insert a radius",
+                            value=1.00,
+                            step=0.01,
+                            key="filter_radius",
                         )
                         st.info("Max distance to annotation")
                     with limit:
@@ -212,7 +222,9 @@ def make_a_tc_report():
                             current_reqs = current_annotations.get(
                                 current_annotation, set()
                             )
-                            current_annotations.update({current_annotation: current_reqs})
+                            current_annotations.update(
+                                {current_annotation: current_reqs}
+                            )
                             current_annotations[current_annotation].add(
                                 (
                                     req_id,
@@ -262,9 +274,13 @@ def make_a_tc_report():
                                 with anno:
                                     with st.container(border=True):
                                         st.write("Requirements")
-                                        st.info("Found Requirements for chosen annotation")
+                                        st.info(
+                                            "Found Requirements for chosen annotation"
+                                        )
                                         write_requirements(
-                                            current_annotations[reqs_by_anno[radio_choice]]
+                                            current_annotations[
+                                                reqs_by_anno[radio_choice]
+                                            ]
                                         )
                                 with viz:
                                     with st.container(border=True):
@@ -285,7 +301,9 @@ def make_a_tc_report():
                                         if select == "2D":
                                             plot_2_sets_in_one_2d(
                                                 minifold_vectors_2d(annotation_vectors),
-                                                minifold_vectors_2d(requirement_vectors),
+                                                minifold_vectors_2d(
+                                                    requirement_vectors
+                                                ),
                                                 "Annotation",
                                                 "Requirements",
                                                 first_color="red",

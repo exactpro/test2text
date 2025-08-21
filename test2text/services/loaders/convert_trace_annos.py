@@ -27,7 +27,6 @@ def write_table_row(*args, **kwargs):
 
 def trace_test_cases_to_annos(trace_files: list):
     with get_db_client() as db:
-
         st.info(
             "Reading trace files and inserting test case + annotations pairs into database..."
         )
@@ -57,7 +56,9 @@ def trace_test_cases_to_annos(trace_files: list):
                         case_id = db.test_cases.get_or_insert(
                             test_script=test_script, test_case=current_tc
                         )
-                        annotation_id = db.annotations.get_or_insert(summary=concat_summary)
+                        annotation_id = db.annotations.get_or_insert(
+                            summary=concat_summary
+                        )
                         insertions.append(
                             db.cases_to_annos.insert(
                                 case_id=case_id, annotation_id=annotation_id
@@ -78,4 +79,3 @@ def trace_test_cases_to_annos(trace_files: list):
                 sum(insertions),
                 len(insertions) - sum(insertions),
             )
-

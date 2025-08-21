@@ -13,7 +13,6 @@ OnFileStart = Callable[[str, str], DeltaGenerator]
 
 def index_annotations_from_files(files: list, *_, on_file_start: OnFileStart = None):
     with get_db_client() as db:
-
         for i, file in enumerate(files):
             file_counter = None
             if on_file_start:

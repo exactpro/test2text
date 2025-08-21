@@ -213,7 +213,9 @@ def visualize_vectors():
             )
             progress_bar.progress(80, "Plotted in 3D")
 
-            anno_vectors_2d = minifold_vectors_2d(extract_closest_annotation_vectors(db))
+            anno_vectors_2d = minifold_vectors_2d(
+                extract_closest_annotation_vectors(db)
+            )
 
             plot_2_sets_in_one_2d(
                 reqs_vectors_2d, anno_vectors_2d, "Requerements", "Annotations"

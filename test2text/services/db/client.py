@@ -88,7 +88,6 @@ class DbClient:
         cursor.close()
         return tables
 
-
     @property
     def get_db_full_info(self):
         """
@@ -102,16 +101,20 @@ class DbClient:
         table_names = self.get_table_names()
         for table_name in table_names:
             row_count = self.count_all_entries_in_table(table_name)
-            db_tables_info.update({
-                table_name: row_count,
-            })
+            db_tables_info.update(
+                {
+                    table_name: row_count,
+                }
+            )
         return db_tables_info
 
     def count_all_entries_in_table(self, table: str) -> int:
         count = self.conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
         return count
 
-    def count_notnull_entries_in_table(self,column: str, table: str) -> Union[int, None]:
+    def count_notnull_entries_in_table(
+        self, column: str, table: str
+    ) -> Union[int, None]:
         if self.has_column(column, table):
             count = self.conn.execute(
                 f"SELECT COUNT(*) FROM {table} WHERE {column} IS NOT NULL"

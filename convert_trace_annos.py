@@ -15,10 +15,11 @@ def is_empty(value):
 
 def trace_test_cases_to_annos(trace_file_path: Path):
     with get_db_client() as db:
-
         insertions = list()
         logger.info("Reading trace file and inserting annotations into table...")
-        with open(trace_file_path, mode="r", newline="", encoding="utf-8") as trace_file:
+        with open(
+            trace_file_path, mode="r", newline="", encoding="utf-8"
+        ) as trace_file:
             reader = csv.reader(trace_file)
             current_tc = EMPTY
             concat_summary = EMPTY
@@ -37,7 +38,9 @@ def trace_test_cases_to_annos(trace_file_path: Path):
                         case_id = db.test_cases.get_or_insert(
                             test_script=test_script, test_case=current_tc
                         )
-                        annotation_id = db.annotations.get_or_insert(summary=concat_summary)
+                        annotation_id = db.annotations.get_or_insert(
+                            summary=concat_summary
+                        )
                         insertions.append(
                             db.cases_to_annos.insert(
                                 case_id=case_id, annotation_id=annotation_id
