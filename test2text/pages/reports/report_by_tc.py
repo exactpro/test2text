@@ -126,7 +126,7 @@ def make_a_tc_report():
                     radius, limit = st.columns(2)
                     with radius:
                         filter_radius = st.number_input(
-                            "Insert a radius", value=0.00, step=0.01, key="filter_radius"
+                            "Insert a radius", value=1.00, step=0.01, key="filter_radius"
                         )
                         st.info("Max distance to annotation")
                     with limit:

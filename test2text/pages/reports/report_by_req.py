@@ -142,7 +142,7 @@ def make_a_report():
                         st.info("Limit of selected test cases")
 
                 if filter_radius:
-                    where_clauses.append("distance >= ?")
+                    where_clauses.append("distance <= ?")
                     params.append(f"{filter_radius}")
 
                 if filter_limit:
