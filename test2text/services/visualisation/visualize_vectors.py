@@ -39,7 +39,7 @@ def extract_closest_annotation_vectors(db: DbClient):
 def extract_requirement_vectors(db: DbClient):
     vectors = []
     embeddings = db.get_column_values("embedding", from_table="Requirements")
-    if embeddings.fetchone() is None:
+    if not embeddings:
         st.error("Embeddings is empty. Please fill embeddings in requirements.")
         return None
     for row in embeddings:
