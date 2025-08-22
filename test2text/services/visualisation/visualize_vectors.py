@@ -13,6 +13,7 @@ DOT_SIZE_2D = 20
 DOT_SIZE_3D = 10
 LABELS_SUMMARY_LENGTH = 15
 
+
 def extract_annotation_vectors(db: DbClient):
     vectors = []
     embeddings = db.get_column_values("embedding", from_table="Annotations")
@@ -73,13 +74,13 @@ def minifold_vectors_3d(vectors: np.array):
     return vectors_3d
 
 
-def plot_vectors_2d(vectors_2d: np.array, title: str, labels: list=None):
+def plot_vectors_2d(vectors_2d: np.array, title: str, labels: list = None):
     fig = px.scatter(
         x=vectors_2d[:, 0],
         y=vectors_2d[:, 1],
         text=labels,
     )
-    fig.update_traces(textposition='top center')
+    fig.update_traces(textposition="top center")
     fig.update_layout(
         title=title,
         xaxis_title="X",
@@ -88,7 +89,7 @@ def plot_vectors_2d(vectors_2d: np.array, title: str, labels: list=None):
     st.plotly_chart(fig, use_container_width=True)
 
 
-def plot_vectors_3d(vectors_3d: np.array, title: str, labels: list=None):
+def plot_vectors_3d(vectors_3d: np.array, title: str, labels: list = None):
     fig = px.scatter_3d(
         x=vectors_3d[:, 0],
         y=vectors_3d[:, 1],
@@ -96,7 +97,7 @@ def plot_vectors_3d(vectors_3d: np.array, title: str, labels: list=None):
         color=vectors_3d[:, 2],
         text=labels,
     )
-    fig.update_traces(textposition='top center')
+    fig.update_traces(textposition="top center")
     fig.update_layout(title=title, xaxis_title="X", yaxis_title="Y")
     st.plotly_chart(fig, use_container_width=True)
 
@@ -215,7 +216,6 @@ def visualize_vectors():
             progress_bar = st.progress(0)
 
             annotation_vectors = extract_annotation_vectors(db)
-            anno_labels = db.get_column_values("id", from_table="Annotations")
             progress_bar.progress(20, "Extracted")
             anno_vectors_2d = minifold_vectors_2d(annotation_vectors)
             progress_bar.progress(40, "Minifolded for 2D")
