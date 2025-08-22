@@ -20,6 +20,12 @@ To install the dependencies, run the following command:
 uv sync
 ```
 
+To bring a code to a single format:
+
+```bash
+uvx ruff format
+```
+
 ### PyTorch version
 
 PyTorch is default set to CPU distributive:

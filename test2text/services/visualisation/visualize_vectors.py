@@ -11,15 +11,16 @@ FIG_SIZE = (8, 6)
 FONT_SIZE = 18
 DOT_SIZE_2D = 20
 DOT_SIZE_3D = 10
+LABELS_SUMMARY_LENGTH = 15
 
 
 def extract_annotation_vectors(db: DbClient):
     vectors = []
-    embeddings = db.conn.execute("SELECT embedding FROM Annotations")
-    if embeddings.fetchone() is None:
+    embeddings = db.get_column_values("embedding", from_table="Annotations")
+    if not embeddings:
         st.error("Embeddings is empty. Please fill embeddings in annotations.")
         return None
-    for row in embeddings.fetchall():
+    for row in embeddings:
         if row[0] is not None:
             vectors.append(np.array(unpack_float32(row[0])))
     return np.array(vectors)
@@ -27,78 +28,111 @@ def extract_annotation_vectors(db: DbClient):
 
 def extract_closest_annotation_vectors(db: DbClient):
     vectors = []
-    embeddings = db.conn.execute("""
-    SELECT embedding FROM Annotations
-    WHERE id IN (
-    SELECT DISTINCT annotation_id FROM AnnotationsToRequirements
-    )
-    """)
-    if embeddings.fetchone() is None:
+    embeddings = db.get_embeddings_from_annotations_to_requirements_table()
+    if not embeddings:
         st.error("Embeddings is empty. Please calculate and cache distances.")
         return None
-    for row in embeddings.fetchall():
+    for row in embeddings:
         vectors.append(np.array(unpack_float32(row[0])))
     return np.array(vectors)
 
 
 def extract_requirement_vectors(db: DbClient):
     vectors = []
-    embeddings = db.conn.execute("SELECT embedding FROM Requirements")
-    if embeddings.fetchone() is None:
+    embeddings = db.get_column_values("embedding", from_table="Requirements")
+    if not embeddings:
         st.error("Embeddings is empty. Please fill embeddings in requirements.")
         return None
-    for row in embeddings.fetchall():
+    for row in embeddings:
         vectors.append(np.array(unpack_float32(row[0])))
     return np.array(vectors)
 
 
 def minifold_vectors_2d(vectors: np.array):
-    tsne = TSNE(n_components=2, random_state=0)
+    """
+    Reduces high-dimensional vectors to 2D using TSNE.
+    Handles cases where the number of samples is too small for TSNE by returning the input as-is.
+    """
+    n_samples = vectors.shape[0]
+    # TSNE requires perplexity < n_samples
+    if n_samples < 2:
+        return vectors.reshape(n_samples, -1)[:, :2]
+    perplexity = min(30, max(1, (n_samples - 1) // 3))
+    tsne = TSNE(n_components=2, random_state=0, perplexity=perplexity)
     vectors_2d = tsne.fit_transform(vectors)
     return vectors_2d
 
 
 def minifold_vectors_3d(vectors: np.array):
-    tsne = TSNE(n_components=3, random_state=0)
+    n_samples = vectors.shape[0]
+    # TSNE requires perplexity < n_samples
+    if n_samples < 2:
+        return vectors.reshape(n_samples, -1)[:, :3]
+    perplexity = min(30, n_samples - 1) if n_samples > 1 else 1
+    tsne = TSNE(n_components=3, random_state=0, perplexity=perplexity)
     vectors_3d = tsne.fit_transform(vectors)
     return vectors_3d
 
 
-def plot_vectors_2d(vectors_2d: np.array, title):
-    fig = px.scatter(x=vectors_2d[:, 0], y=vectors_2d[:, 1])
-    fig.update_layout(title=title, xaxis_title="X", yaxis_title="Y")
+def plot_vectors_2d(vectors_2d: np.array, title: str, labels: list = None):
+    fig = px.scatter(
+        x=vectors_2d[:, 0],
+        y=vectors_2d[:, 1],
+        text=labels,
+    )
+    fig.update_traces(textposition="top center")
+    fig.update_layout(
+        title=title,
+        xaxis_title="X",
+        yaxis_title="Y",
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 
-def plot_vectors_3d(vectors_3d: np.array, title):
+def plot_vectors_3d(vectors_3d: np.array, title: str, labels: list = None):
     fig = px.scatter_3d(
         x=vectors_3d[:, 0],
         y=vectors_3d[:, 1],
         z=vectors_3d[:, 2],
         color=vectors_3d[:, 2],
+        text=labels,
     )
+    fig.update_traces(textposition="top center")
     fig.update_layout(title=title, xaxis_title="X", yaxis_title="Y")
     st.plotly_chart(fig, use_container_width=True)
 
 
 def plot_2_sets_in_one_2d(
-    first_set_of_vec, second_set_of_vec, first_title, second_title
+    first_set_of_vec,
+    second_set_of_vec,
+    first_title,
+    second_title,
+    first_color="red",
+    second_color="green",
+    first_labels=None,
+    second_labels=None,
 ):
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
             x=first_set_of_vec[:, 0],
             y=first_set_of_vec[:, 1],
-            mode="markers",
-            name={first_title},
+            mode="markers+text",
+            name=first_title,
+            text=first_labels,
+            textposition="top center",
+            marker=dict(color=f"{first_color}"),
         )
     )
     fig.add_trace(
         go.Scatter(
             x=second_set_of_vec[:, 0],
             y=second_set_of_vec[:, 1],
-            mode="markers",
-            name={second_title},
+            mode="markers+text",
+            name=second_title,
+            text=second_labels,
+            textposition="top center",
+            marker=dict(color=f"{second_color}"),
         )
     )
     fig.update_layout(
@@ -108,7 +142,14 @@ def plot_2_sets_in_one_2d(
 
 
 def plot_2_sets_in_one_3d(
-    first_set_of_vec, second_set_of_vec, first_title, second_title
+    first_set_of_vec,
+    second_set_of_vec,
+    first_title,
+    second_title,
+    first_color="red",
+    second_color="green",
+    first_labels=None,
+    second_labels=None,
 ):
     fig = go.Figure()
     fig.add_trace(
@@ -116,8 +157,11 @@ def plot_2_sets_in_one_3d(
             x=first_set_of_vec[:, 0],
             y=first_set_of_vec[:, 1],
             z=first_set_of_vec[:, 2],
-            mode="markers",
+            mode="markers+text",
             name=first_title,
+            text=first_labels,
+            textposition="top left",
+            marker=dict(color=f"{first_color}"),
         )
     )
 
@@ -126,8 +170,11 @@ def plot_2_sets_in_one_3d(
             x=second_set_of_vec[:, 0],
             y=second_set_of_vec[:, 1],
             z=second_set_of_vec[:, 2],
-            mode="markers",
+            mode="markers+text",
             name=second_title,
+            text=second_labels,
+            textposition="top center",
+            marker=dict(color=f"{second_color}"),
         )
     )
 
@@ -144,61 +191,72 @@ def plot_2_sets_in_one_3d(
 
 def visualize_vectors():
     st.header("Visualizing vectors")
-    db = get_db_client()
-    Req_tab, Anno_tab, Req_Anno_tab = st.tabs(
-        ["Requirements", "Annotations", "Requirements vs Annotations"]
-    )
-    with Req_tab:
-        st.subheader("Requirements vectors")
-        progress_bar = st.progress(0)
-
-        requirement_vectors = extract_requirement_vectors(db)
-        progress_bar.progress(20, "Extracted")
-        reqs_vectors_2d = minifold_vectors_2d(requirement_vectors)
-        progress_bar.progress(40, "Minifolded for 2D")
-        plot_vectors_2d(reqs_vectors_2d, "Requirements")
-        progress_bar.progress(60, "Plotted in 2D")
-        reqs_vectors_3d = minifold_vectors_3d(requirement_vectors)
-        progress_bar.progress(80, "Minifolded for 3D")
-        plot_vectors_3d(reqs_vectors_3d, "Requirements")
-        progress_bar.progress(100, "Plotted in 3D")
-
-    with Anno_tab:
-        st.subheader("Annotations vectors")
-        progress_bar = st.progress(0)
-
-        annotation_vectors = extract_annotation_vectors(db)
-        progress_bar.progress(20, "Extracted")
-        anno_vectors_2d = minifold_vectors_2d(annotation_vectors)
-        progress_bar.progress(40, "Minifolded for 2D")
-        plot_vectors_2d(anno_vectors_2d, "Annotations")
-        progress_bar.progress(60, "Plotted in 2D")
-        anno_vectors_3d = minifold_vectors_3d(annotation_vectors)
-        progress_bar.progress(80, "Minifolded for 3D")
-        plot_vectors_3d(anno_vectors_3d, "Annotations")
-        progress_bar.progress(100, "Plotted in 3D")
-
-    with Req_Anno_tab:
-        # Show how these 2 groups of vectors are different
-        st.subheader("Requirements vs Annotations")
-        progress_bar = st.progress(40, "Extracted")
-        plot_2_sets_in_one_2d(
-            reqs_vectors_2d, anno_vectors_2d, "Requerements", "Annotations"
+    with get_db_client() as db:
+        req_tab, anno_tab, req_anno_tab = st.tabs(
+            ["Requirements", "Annotations", "Requirements vs Annotations"]
         )
-        progress_bar.progress(60, "Plotted in 2D")
+        with req_tab:
+            st.subheader("Requirements vectors")
+            progress_bar = st.progress(0)
 
-        plot_2_sets_in_one_3d(
-            reqs_vectors_3d, anno_vectors_3d, "Requerements", "Annotations"
-        )
-        progress_bar.progress(80, "Plotted in 3D")
+            requirement_vectors = extract_requirement_vectors(db)
+            progress_bar.progress(20, "Extracted")
+            reqs_vectors_2d = minifold_vectors_2d(requirement_vectors)
+            progress_bar.progress(40, "Minifolded for 2D")
+            req_labels = db.get_column_values("external_id", from_table="Requirements")
+            plot_vectors_2d(reqs_vectors_2d, "Requirements", labels=req_labels)
+            progress_bar.progress(60, "Plotted in 2D")
+            reqs_vectors_3d = minifold_vectors_3d(requirement_vectors)
+            progress_bar.progress(80, "Minifolded for 3D")
+            plot_vectors_3d(reqs_vectors_3d, "Requirements")
+            progress_bar.progress(100, "Plotted in 3D")
 
-        anno_vectors_2d = minifold_vectors_2d(extract_closest_annotation_vectors(db))
+        with anno_tab:
+            st.subheader("Annotations vectors")
+            progress_bar = st.progress(0)
 
-        plot_2_sets_in_one_2d(
-            reqs_vectors_2d, anno_vectors_2d, "Requerements", "Annotations"
-        )
-        progress_bar.progress(100, "Minifolded and Plotted in 2D")
-    db.conn.close()
+            annotation_vectors = extract_annotation_vectors(db)
+            progress_bar.progress(20, "Extracted")
+            anno_vectors_2d = minifold_vectors_2d(annotation_vectors)
+            progress_bar.progress(40, "Minifolded for 2D")
+            plot_vectors_2d(anno_vectors_2d, "Annotations")
+            progress_bar.progress(60, "Plotted in 2D")
+            anno_vectors_3d = minifold_vectors_3d(annotation_vectors)
+            progress_bar.progress(80, "Minifolded for 3D")
+            plot_vectors_3d(anno_vectors_3d, "Annotations")
+            progress_bar.progress(100, "Plotted in 3D")
+
+        with req_anno_tab:
+            # Show how these 2 groups of vectors are different
+            st.subheader("Requirements vs Annotations")
+            progress_bar = st.progress(40, "Extracted")
+            plot_2_sets_in_one_2d(
+                reqs_vectors_2d,
+                anno_vectors_2d,
+                first_title="Requirements",
+                second_title="Annotations",
+            )
+            progress_bar.progress(60, "Plotted in 2D")
+
+            plot_2_sets_in_one_3d(
+                reqs_vectors_3d,
+                anno_vectors_3d,
+                first_title="Requirements",
+                second_title="Annotations",
+            )
+            progress_bar.progress(80, "Plotted in 3D")
+
+            anno_vectors_2d = minifold_vectors_2d(
+                extract_closest_annotation_vectors(db)
+            )
+
+            plot_2_sets_in_one_2d(
+                reqs_vectors_2d,
+                anno_vectors_2d,
+                first_title="Requirements",
+                second_title="Annotations",
+            )
+            progress_bar.progress(100, "Minifolded and Plotted in 2D")
 
 
 if __name__ == "__main__":

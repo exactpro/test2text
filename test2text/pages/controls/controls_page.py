@@ -1,11 +1,9 @@
+from test2text.services.db import get_db_client
+
+
 def controls_page():
     import streamlit as st
     import plotly.express as px
-
-    from test2text.services.embeddings.annotation_embeddings_controls import (
-        count_all_annotations,
-        count_embedded_annotations,
-    )
 
     st.header("Controls page")
     embedding_col, distances_col = st.columns(2)
@@ -13,10 +11,13 @@ def controls_page():
         st.subheader("Embedding")
 
         def refresh_counts():
-            st.session_state["all_annotations_count"] = count_all_annotations()
-            st.session_state["embedded_annotations_count"] = (
-                count_embedded_annotations()
-            )
+            with get_db_client() as db:
+                st.session_state["all_annotations_count"] = db.count_all_entries(
+                    "Annotations"
+                )
+                st.session_state["embedded_annotations_count"] = (
+                    db.count_notnull_entries("embedding", from_table="Annotations")
+                )
 
         refresh_counts()
 
