@@ -13,10 +13,10 @@ def controls_page():
         def refresh_counts():
             with get_db_client() as db:
                 st.session_state["all_annotations_count"] = (
-                    db.count_all_entries_in_table("Annotations")
+                    db.count_all_entries("Annotations")
                 )
                 st.session_state["embedded_annotations_count"] = (
-                    db.count_embedded_entries_in_table("Annotations")
+                    db.count_notnull_entries("embedding",from_table="Annotations")
                 )
 
         refresh_counts()

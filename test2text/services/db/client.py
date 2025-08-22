@@ -88,7 +88,7 @@ class DbClient:
         cursor.close()
         return tables
 
-    def get_column_values(self, columns: list[str], from_table: str):
+    def get_column_values(self, *columns: str, from_table: str):
         cursor = self.conn.execute(f"SELECT {', '.join(columns)} FROM {from_table}")
         return cursor.fetchall()
 
@@ -117,10 +117,10 @@ class DbClient:
         return count
 
     def count_notnull_entries(
-        self, columns: list[str], from_table: str
-    ) -> Union[int, None]:
+        self, *columns: str, from_table: str
+    ) -> int:
         count = self.conn.execute(
-            f"SELECT COUNT(*) FROM {from_table} WHERE {', '.join(columns)} IS NOT NULL"
+            f"SELECT COUNT(*) FROM {from_table} WHERE {' AND  '.join([column + ' IS NOT NULL' for column in columns])}"
         ).fetchone()[0]
         return count
 
