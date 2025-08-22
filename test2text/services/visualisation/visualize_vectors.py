@@ -15,11 +15,11 @@ DOT_SIZE_3D = 10
 
 def extract_annotation_vectors(db: DbClient):
     vectors = []
-    embeddings = db.get_column_values("embedding", "Annotations")
-    if embeddings.fetchone() is None:
+    embeddings = db.get_column_values("embedding", from_table="Annotations")
+    if not embeddings:
         st.error("Embeddings is empty. Please fill embeddings in annotations.")
         return None
-    for row in embeddings.fetchall():
+    for row in embeddings:
         if row[0] is not None:
             vectors.append(np.array(unpack_float32(row[0])))
     return np.array(vectors)
@@ -38,11 +38,11 @@ def extract_closest_annotation_vectors(db: DbClient):
 
 def extract_requirement_vectors(db: DbClient):
     vectors = []
-    embeddings = db.get_column_values("embedding", "Requirements")
+    embeddings = db.get_column_values("embedding", from_table="Requirements")
     if embeddings.fetchone() is None:
         st.error("Embeddings is empty. Please fill embeddings in requirements.")
         return None
-    for row in embeddings.fetchall():
+    for row in embeddings:
         vectors.append(np.array(unpack_float32(row[0])))
     return np.array(vectors)
 

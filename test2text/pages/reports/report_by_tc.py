@@ -77,11 +77,11 @@ def make_a_tc_report():
             if distance_sql:
                 tc_dict = {
                     f"{test_case} [smart search d={round_distance(distance)}]": tc_id
-                    for (tc_id, _, test_case, distance) in data.fetchall()
+                    for (tc_id, _, test_case, distance) in data
                 }
             else:
                 tc_dict = {
-                    test_case: tc_id for (tc_id, _, test_case) in data.fetchall()
+                    test_case: tc_id for (tc_id, _, test_case) in data
                 }
 
             st.subheader("Choose ONE of filtered test cases")
