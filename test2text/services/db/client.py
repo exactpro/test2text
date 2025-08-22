@@ -116,9 +116,7 @@ class DbClient:
         count = self.conn.execute(f"SELECT COUNT(*) FROM {from_table}").fetchone()[0]
         return count
 
-    def count_notnull_entries(
-        self, *columns: str, from_table: str
-    ) -> int:
+    def count_notnull_entries(self, *columns: str, from_table: str) -> int:
         count = self.conn.execute(
             f"SELECT COUNT(*) FROM {from_table} WHERE {' AND  '.join([column + ' IS NOT NULL' for column in columns])}"
         ).fetchone()[0]

@@ -80,9 +80,7 @@ def make_a_tc_report():
                     for (tc_id, _, test_case, distance) in data
                 }
             else:
-                tc_dict = {
-                    test_case: tc_id for (tc_id, _, test_case) in data
-                }
+                tc_dict = {test_case: tc_id for (tc_id, _, test_case) in data}
 
             st.subheader("Choose ONE of filtered test cases")
             option = st.selectbox(
