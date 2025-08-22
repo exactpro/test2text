@@ -1,5 +1,4 @@
 import sqlite3
-from typing import Union
 
 import sqlite_vec
 import logging
