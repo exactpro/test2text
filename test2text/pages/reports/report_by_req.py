@@ -6,6 +6,7 @@ from sqlite_vec import serialize_float32
 from test2text.services.utils.math_utils import round_distance
 
 SUMMARY_LENGTH = 100
+LABELS_SUMMARY_LENGTH = 15
 
 
 def make_a_report():
@@ -221,8 +222,8 @@ def make_a_report():
                                             ]
                                         ]
                                         anno_labels = [
-                                            f"{anno_id} {anno_sum[:SUMMARY_LENGTH]}"
-                                            for anno_id, anno_sum, _, _ in current_test_cases[
+                                            f"{anno_id}"
+                                            for anno_id, _, _, _ in current_test_cases[
                                                 st.session_state["radio_choice"]
                                             ]
                                         ]

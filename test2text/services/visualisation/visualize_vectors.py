@@ -11,7 +11,7 @@ FIG_SIZE = (8, 6)
 FONT_SIZE = 18
 DOT_SIZE_2D = 20
 DOT_SIZE_3D = 10
-
+LABELS_SUMMARY_LENGTH = 15
 
 def extract_annotation_vectors(db: DbClient):
     vectors = []
@@ -73,19 +73,30 @@ def minifold_vectors_3d(vectors: np.array):
     return vectors_3d
 
 
-def plot_vectors_2d(vectors_2d: np.array, title):
-    fig = px.scatter(x=vectors_2d[:, 0], y=vectors_2d[:, 1])
-    fig.update_layout(title=title, xaxis_title="X", yaxis_title="Y")
+def plot_vectors_2d(vectors_2d: np.array, title: str, labels: list=None):
+    fig = px.scatter(
+        x=vectors_2d[:, 0],
+        y=vectors_2d[:, 1],
+        text=labels,
+    )
+    fig.update_traces(textposition='top center')
+    fig.update_layout(
+        title=title,
+        xaxis_title="X",
+        yaxis_title="Y",
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 
-def plot_vectors_3d(vectors_3d: np.array, title):
+def plot_vectors_3d(vectors_3d: np.array, title: str, labels: list=None):
     fig = px.scatter_3d(
         x=vectors_3d[:, 0],
         y=vectors_3d[:, 1],
         z=vectors_3d[:, 2],
         color=vectors_3d[:, 2],
+        text=labels,
     )
+    fig.update_traces(textposition='top center')
     fig.update_layout(title=title, xaxis_title="X", yaxis_title="Y")
     st.plotly_chart(fig, use_container_width=True)
 
@@ -180,10 +191,10 @@ def plot_2_sets_in_one_3d(
 def visualize_vectors():
     st.header("Visualizing vectors")
     with get_db_client() as db:
-        Req_tab, Anno_tab, Req_Anno_tab = st.tabs(
+        req_tab, anno_tab, req_anno_tab = st.tabs(
             ["Requirements", "Annotations", "Requirements vs Annotations"]
         )
-        with Req_tab:
+        with req_tab:
             st.subheader("Requirements vectors")
             progress_bar = st.progress(0)
 
@@ -191,18 +202,20 @@ def visualize_vectors():
             progress_bar.progress(20, "Extracted")
             reqs_vectors_2d = minifold_vectors_2d(requirement_vectors)
             progress_bar.progress(40, "Minifolded for 2D")
-            plot_vectors_2d(reqs_vectors_2d, "Requirements")
+            req_labels = db.get_column_values("external_id", from_table="Requirements")
+            plot_vectors_2d(reqs_vectors_2d, "Requirements", labels=req_labels)
             progress_bar.progress(60, "Plotted in 2D")
             reqs_vectors_3d = minifold_vectors_3d(requirement_vectors)
             progress_bar.progress(80, "Minifolded for 3D")
             plot_vectors_3d(reqs_vectors_3d, "Requirements")
             progress_bar.progress(100, "Plotted in 3D")
 
-        with Anno_tab:
+        with anno_tab:
             st.subheader("Annotations vectors")
             progress_bar = st.progress(0)
 
             annotation_vectors = extract_annotation_vectors(db)
+            anno_labels = db.get_column_values("id", from_table="Annotations")
             progress_bar.progress(20, "Extracted")
             anno_vectors_2d = minifold_vectors_2d(annotation_vectors)
             progress_bar.progress(40, "Minifolded for 2D")
@@ -213,17 +226,23 @@ def visualize_vectors():
             plot_vectors_3d(anno_vectors_3d, "Annotations")
             progress_bar.progress(100, "Plotted in 3D")
 
-        with Req_Anno_tab:
+        with req_anno_tab:
             # Show how these 2 groups of vectors are different
             st.subheader("Requirements vs Annotations")
             progress_bar = st.progress(40, "Extracted")
             plot_2_sets_in_one_2d(
-                reqs_vectors_2d, anno_vectors_2d, "Requerements", "Annotations"
+                reqs_vectors_2d,
+                anno_vectors_2d,
+                first_title="Requirements",
+                second_title="Annotations",
             )
             progress_bar.progress(60, "Plotted in 2D")
 
             plot_2_sets_in_one_3d(
-                reqs_vectors_3d, anno_vectors_3d, "Requerements", "Annotations"
+                reqs_vectors_3d,
+                anno_vectors_3d,
+                first_title="Requirements",
+                second_title="Annotations",
             )
             progress_bar.progress(80, "Plotted in 3D")
 
@@ -232,7 +251,10 @@ def visualize_vectors():
             )
 
             plot_2_sets_in_one_2d(
-                reqs_vectors_2d, anno_vectors_2d, "Requerements", "Annotations"
+                reqs_vectors_2d,
+                anno_vectors_2d,
+                first_title="Requirements",
+                second_title="Annotations",
             )
             progress_bar.progress(100, "Minifolded and Plotted in 2D")
 
