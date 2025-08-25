@@ -74,7 +74,7 @@ class DbClient:
     def __enter__(self):
         return self
 
-    def get_table_names(self):
+    def get_table_names(self) -> list[str]:
         """
         Returns a list of all user-defined tables in the database.
 
@@ -87,7 +87,13 @@ class DbClient:
         cursor.close()
         return tables
 
-    def get_column_values(self, *columns: str, from_table: str):
+    def get_column_values(self, *columns: str, from_table: str) -> list[tuple]:
+        """
+        Returns the values of the specified columns from the specified table.
+        :param columns: list of column names
+        :param from_table: name of the table
+        :return: list of tuples containing the values of the specified columns
+        """
         cursor = self.conn.execute(f"SELECT {', '.join(columns)} FROM {from_table}")
         return cursor.fetchall()
 
@@ -116,6 +122,11 @@ class DbClient:
         return count
 
     def count_notnull_entries(self, *columns: str, from_table: str) -> int:
+        """
+        Count the number of non-null entries in the specified columns of the specified table.
+        :param columns: list of column names
+        :param from_table: name of the table
+        """
         count = self.conn.execute(
             f"SELECT COUNT(*) FROM {from_table} WHERE {' AND  '.join([column + ' IS NOT NULL' for column in columns])}"
         ).fetchone()[0]
@@ -135,6 +146,9 @@ class DbClient:
         return column_name in columns
 
     def get_null_entries(self, from_table: str) -> list:
+        """
+        Returns values (id and summary) witch has  null values in its embedding column.
+        """
         cursor = self.conn.execute(
             f"SELECT id, summary FROM {from_table} WHERE embedding IS NULL"
         )
@@ -174,8 +188,8 @@ class DbClient:
         self, where_clauses="", params=None
     ) -> list[tuple]:
         """
-        Join all tables related to requirements based on the provided where clauses and parameters.
-        return a list of tuples containing :
+        Extract values from requirements with related annotations and their test cases based on the provided where clauses and parameters.
+        Return a list of tuples containing :
             req_id,
             req_external_id,
             req_summary,
@@ -222,6 +236,14 @@ class DbClient:
     def get_ordered_values_from_requirements(
         self, distance_sql="", where_clauses="", distance_order_sql="", params=None
     ) -> list[tuple]:
+        """
+        Extracted values from Requirements table based on the provided where clauses and specified parameters ordered by distance and id.
+        Return a list of tuples containing :
+                req_id,
+                req_external_id,
+                req_summary,
+                distance between annotation and requirement embeddings,
+        """
         where_sql = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
         sql = f"""
                             SELECT
@@ -241,6 +263,14 @@ class DbClient:
     def get_ordered_values_from_test_cases(
         self, distance_sql="", where_clauses="", distance_order_sql="", params=None
     ) -> list[tuple]:
+        """
+        Extracted values from TestCases table based on the provided where clauses and specified parameters ordered by distance and id.
+        Return a list of tuples containing :
+            case_id,
+            test_script,
+            test_case,
+            distance between test case and typed by user text embeddings if it is specified,
+        """
         where_sql = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
         sql = f"""
                             SELECT
@@ -260,6 +290,21 @@ class DbClient:
     def join_all_tables_by_test_cases(
         self, where_clauses="", params=None
     ) -> list[tuple]:
+        """
+        Join all tables related to test cases based on the provided where clauses and specified parameters.
+        Return a list of tuples containing :
+            case_id,
+            test_script,
+            test_case,
+            anno_id,
+            anno_summary,
+            anno_embedding,
+            distance between annotation and requirement embeddings,
+            req_id,
+            req_external_id,
+            req_summary,
+            req_embedding
+        """
         where_sql = ""
         if where_clauses:
             where_sql = f"WHERE {' AND '.join(where_clauses)}"
@@ -294,7 +339,10 @@ class DbClient:
         data = self.conn.execute(sql, params)
         return data.fetchall()
 
-    def get_embeddings_by_id(self, id1: int, from_table: str):
+    def get_embeddings_by_id(self, id1: int, from_table: str) -> float:
+        """
+        Returns the embedding of the specified id from the specified table.
+        """
         cursor = self.conn.execute(
             f"SELECT embedding FROM {from_table} WHERE id = ?", (id1,)
         )
