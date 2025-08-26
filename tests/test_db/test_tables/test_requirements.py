@@ -60,3 +60,9 @@ class TestRequirementsTable(TestCase):
         long_embedding = [0.1] * (self.db.requirements.embedding_size + 1)
         id1 = self.db.requirements.insert("Test Requirement 7", long_embedding)
         self.assertIsNone(id1)
+
+    def test_count(self):
+        count_before = self.db.requirements.count
+        self.db.requirements.insert("Test Requirement 8")
+        count_after = self.db.requirements.count
+        self.assertEqual(count_after, count_before + 1)

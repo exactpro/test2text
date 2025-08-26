@@ -61,4 +61,4 @@ def index_requirements_from_files(
                     write_batch()
             write_batch()
         # Check requirements
-        return db.count_all_entries(from_table="Requirements")
+        return db.requirements.count

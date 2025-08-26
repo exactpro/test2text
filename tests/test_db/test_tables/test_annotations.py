@@ -81,3 +81,9 @@ class TestAnnotationsTable(TestCase):
             read_embedding = unpack_float32(result[0])
             self.assertEqual(len(read_embedding), self.db.annotations.embedding_size)
             self.assertEqual(round_vector(read_embedding), round_vector(new_embedding))
+
+    def test_count(self):
+        count_before = self.db.annotations.count
+        self.db.annotations.insert("Test Summary 11")
+        count_after = self.db.annotations.count
+        self.assertEqual(count_after, count_before + 1)

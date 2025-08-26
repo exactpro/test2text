@@ -4,7 +4,11 @@ from .abstract_table import AbstractTable
 
 
 class TestCasesToAnnotationsTable(AbstractTable):
-    def init_table(self):
+    """
+    This class represents the relationship between test cases and annotations in the database.
+    """
+
+    def init_table(self) -> None:
         self.connection.execute("""
             CREATE TABLE IF NOT EXISTS CasesToAnnos (
                 case_id INTEGER NOT NULL,
@@ -40,6 +44,11 @@ class TestCasesToAnnotationsTable(AbstractTable):
             pass
         return False
 
+    @property
     def count(self) -> int:
+        """
+        Returns the number of entries in the CasesToAnnos table.
+        :return: int - the number of entries in the table.
+        """
         cursor = self.connection.execute("SELECT COUNT(*) FROM CasesToAnnos")
         return cursor.fetchone()[0]
