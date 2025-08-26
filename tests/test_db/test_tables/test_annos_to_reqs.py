@@ -50,3 +50,11 @@ class TestAnnosToReqsTable(TestCase):
         count_after = self.db.annos_to_reqs.count
         self.assertFalse(inserted)  # Should fail due to foreign key constraint
         self.assertEqual(count_before, count_after)
+
+    def test_count(self):
+        count_before = self.db.annos_to_reqs.count
+        self.db.annos_to_reqs.insert(self.anno1, self.req1, 1)
+        self.db.annos_to_reqs.insert(self.anno2, self.req2, 1)
+        count_after = self.db.annos_to_reqs.count
+        self.assertEqual(count_after, count_before + 2)
+

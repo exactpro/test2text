@@ -61,3 +61,9 @@ class TestTestCasesTable(TestCase):
             "Test Script 14", "Test Case 14", long_embedding
         )
         self.assertIsNone(id1)
+
+    def test_count(self):
+        count_before = self.db.test_cases.count
+        self.db.test_cases.insert("Test Script 15", "Test Case 15")
+        count_after = self.db.test_cases.count
+        self.assertEqual(count_after, count_before + 1)

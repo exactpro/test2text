@@ -50,3 +50,10 @@ class TestCasesToAnnosTable(TestCase):
         count_after = self.db.cases_to_annos.count
         self.assertFalse(inserted)  # Should fail due to foreign key constraint
         self.assertEqual(count_before, count_after)
+
+    def test_count(self):
+        count_before = self.db.cases_to_annos.count
+        self.db.cases_to_annos.insert(self.case1, self.anno1)
+        self.db.cases_to_annos.insert(self.case2, self.anno2)
+        count_after = self.db.cases_to_annos.count
+        self.assertEqual(count_after, count_before + 2)

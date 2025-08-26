@@ -64,6 +64,7 @@ class RequirementsTable(AbstractTable):
         else:
             return None
 
+    @property
     def count(self) -> int:
         """
         Returns the number of entries in the Requirements table.
