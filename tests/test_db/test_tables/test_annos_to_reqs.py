@@ -57,4 +57,3 @@ class TestAnnosToReqsTable(TestCase):
         self.db.annos_to_reqs.insert(self.anno2, self.req2, 1)
         count_after = self.db.annos_to_reqs.count
         self.assertEqual(count_after, count_before + 2)
-

@@ -66,4 +66,3 @@ class TestRequirementsTable(TestCase):
         self.db.requirements.insert("Test Requirement 8")
         count_after = self.db.requirements.count
         self.assertEqual(count_after, count_before + 1)
-
