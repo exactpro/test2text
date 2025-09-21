@@ -66,3 +66,10 @@ class TestRequirementsTable(TestCase):
         self.db.requirements.insert("Test Requirement 8")
         count_after = self.db.requirements.count
         self.assertEqual(count_after, count_before + 1)
+
+    def test_get_by_id_raw(self):
+        id1 = self.db.requirements.insert("Test Requirement 9")
+        requirement = self.db.requirements.get_by_id(id1)
+        self.assertIsNotNone(requirement)
+        self.assertEqual(requirement[0], id1)
+        self.assertEqual(requirement[1], "Test Requirement 9")

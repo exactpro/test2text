@@ -72,3 +72,21 @@ class RequirementsTable(AbstractTable):
         """
         cursor = self.connection.execute("SELECT COUNT(*) FROM Requirements")
         return cursor.fetchone()[0]
+
+    def get_by_id_raw(
+        self, req_id: int
+    ) -> Optional[tuple[int, str, str, Optional[bytes]]]:
+        """
+        Retrieves a requirement by its ID.
+        :param req_id: The ID of the requirement to retrieve.
+        :return: A tuple containing the requirement's ID, external ID, summary, and embedding, or None if not found.
+        """
+        cursor = self.connection.execute(
+            """
+            SELECT id, external_id, summary, embedding
+            FROM Requirements
+            WHERE id = ?
+            """,
+            (req_id,),
+        )
+        return cursor.fetchone()

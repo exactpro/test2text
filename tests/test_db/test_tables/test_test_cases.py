@@ -67,3 +67,12 @@ class TestTestCasesTable(TestCase):
         self.db.test_cases.insert("Test Script 15", "Test Case 15")
         count_after = self.db.test_cases.count
         self.assertEqual(count_after, count_before + 1)
+
+    def test_get_by_id_raw(self):
+        id1 = self.db.test_cases.insert("Test Script 16", "Test Case 16")
+        record = self.db.test_cases.get_by_id_raw(id1)
+        self.assertIsNotNone(record)
+        self.assertEqual(record[0], id1)
+        self.assertEqual(record[1], "Test Script 16")
+        self.assertEqual(record[2], "Test Case 16")
+        self.assertIsNone(record[3])
