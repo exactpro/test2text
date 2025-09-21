@@ -69,7 +69,7 @@ class TestRequirementsTable(TestCase):
 
     def test_get_by_id_raw(self):
         id1 = self.db.requirements.insert("Test Requirement 9")
-        requirement = self.db.requirements.get_by_id(id1)
+        requirement = self.db.requirements.get_by_id_raw(id1)
         self.assertIsNotNone(requirement)
         self.assertEqual(requirement[0], id1)
-        self.assertEqual(requirement[1], "Test Requirement 9")
+        self.assertEqual(requirement[2], "Test Requirement 9")
