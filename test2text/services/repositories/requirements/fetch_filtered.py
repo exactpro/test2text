@@ -12,7 +12,7 @@ def fetch_filtered_requirements(
     text_content: Optional[str] = None,
     smart_search_query: Optional[str] = None,
 ) -> list[tuple[int, str, str]]:
-    sql = f"""
+    sql = """
             SELECT
                 Requirements.id as req_id,
                 Requirements.external_id as req_external_id,

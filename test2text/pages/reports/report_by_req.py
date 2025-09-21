@@ -1,4 +1,3 @@
-from itertools import groupby
 import numpy as np
 import streamlit as st
 
@@ -138,9 +137,6 @@ def make_a_report():
                                 )
 
                             if st.session_state["chosen_test_case"]:
-                                test_case = db.test_cases.get_by_id_raw(
-                                    st.session_state["chosen_test_case"]
-                                )
                                 annotations = annotations_repo.fetch_annotations_by_test_case_with_distance_to_requirement(
                                     db,
                                     st.session_state["chosen_test_case"],
