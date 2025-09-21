@@ -9,6 +9,7 @@ from test2text.services.repositories import test_cases
 SUMMARY_LENGTH = 100
 LABELS_SUMMARY_LENGTH = 15
 
+
 def display_found_details(data: list):
     from test2text.services.utils import unpack_float32
     from test2text.services.visualisation.visualize_vectors import (
@@ -17,17 +18,17 @@ def display_found_details(data: list):
         minifold_vectors_3d,
         plot_2_sets_in_one_3d,
     )
+
     def write_annotations(current_annotations: set[tuple]):
         st.write("id,", "Summary,", "Distance")
         for anno_id, anno_summary, _, distance in current_annotations:
             st.write(anno_id, anno_summary, round_distance(distance))
 
-
     for (
-            req_id,
-            req_external_id,
-            req_summary,
-            req_embedding,
+        req_id,
+        req_external_id,
+        req_summary,
+        req_embedding,
     ), group in groupby(data, lambda x: x[0:4]):
         st.divider()
         with st.container():
@@ -35,21 +36,19 @@ def display_found_details(data: list):
             st.write(req_summary)
             current_test_cases = dict()
             for (
-                    _,
-                    _,
-                    _,
-                    _,
-                    anno_id,
-                    anno_summary,
-                    anno_embedding,
-                    distance,
-                    case_id,
-                    test_script,
-                    test_case,
+                _,
+                _,
+                _,
+                _,
+                anno_id,
+                anno_summary,
+                anno_embedding,
+                distance,
+                case_id,
+                test_script,
+                test_case,
             ) in group:
-                current_annotation = current_test_cases.get(
-                    test_case, set()
-                )
+                current_annotation = current_test_cases.get(test_case, set())
                 current_test_cases.update({test_case: current_annotation})
                 current_test_cases[test_case].add(
                     (anno_id, anno_summary, anno_embedding, distance)
@@ -82,9 +81,7 @@ def display_found_details(data: list):
                     with anno:
                         with st.container(border=True):
                             st.write("Annotations")
-                            st.info(
-                                "List of Annotations for chosen Test case"
-                            )
+                            st.info("List of Annotations for chosen Test case")
                             write_annotations(
                                 current_annotations=current_test_cases[
                                     st.session_state["radio_choice"]
@@ -114,9 +111,7 @@ def display_found_details(data: list):
                             annotation_vectors = np.array(anno_embeddings)
                             if select == "2D":
                                 plot_2_sets_in_one_2d(
-                                    minifold_vectors_2d(
-                                        requirement_vectors
-                                    ),
+                                    minifold_vectors_2d(requirement_vectors),
                                     minifold_vectors_2d(annotation_vectors),
                                     "Requirement",
                                     "Annotations",
@@ -143,7 +138,7 @@ def display_found_details(data: list):
 def make_a_report():
     from test2text.services.db import get_db_client
 
-    with (get_db_client() as db):
+    with get_db_client() as db:
         st.header("Test2Text Report")
 
         with st.container(border=True):
@@ -166,10 +161,12 @@ def make_a_report():
 
         with st.container(border=True):
             st.session_state.update({"req_form_submitting": True})
-            data = requirements.fetch_filtered_requirements(db,
-                                                            external_id=filter_id,
-                                                            text_content=filter_summary,
-                                                            smart_search_query=filter_embedding)
+            data = requirements.fetch_filtered_requirements(
+                db,
+                external_id=filter_id,
+                text_content=filter_summary,
+                smart_search_query=filter_embedding,
+            )
 
             requirements_dict = {
                 req_id: f"{req_external_id} {summary[:SUMMARY_LENGTH]}..."
@@ -208,7 +205,9 @@ def make_a_report():
                         )
                         st.info("Limit of selected test cases")
 
-                rows = test_cases.fetch_test_cases_by_requirement(db, selected_requirement, filter_radius, filter_limit)
+                rows = test_cases.fetch_test_cases_by_requirement(
+                    db, selected_requirement, filter_radius, filter_limit
+                )
 
                 if not rows:
                     st.error(
@@ -217,7 +216,6 @@ def make_a_report():
                     )
                 else:
                     display_found_details(rows)
-
 
 
 if __name__ == "__main__":

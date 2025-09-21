@@ -1,7 +1,9 @@
 from test2text.services.db import DbClient
 
 
-def fetch_test_cases_by_requirement(db: DbClient, requirement_id: int, radius: float, limit: int) -> list:
+def fetch_test_cases_by_requirement(
+    db: DbClient, requirement_id: int, radius: float, limit: int
+) -> list:
     sql = f"""
         SELECT
             Requirements.id as req_id,
