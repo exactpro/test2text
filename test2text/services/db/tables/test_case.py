@@ -93,3 +93,23 @@ class TestCasesTable(AbstractTable):
         """
         cursor = self.connection.execute("SELECT COUNT(*) FROM TestCases")
         return cursor.fetchone()[0]
+
+    def get_by_id_raw(
+        self, case_id: int
+    ) -> Optional[tuple[int, str, str, Optional[bytes]]]:
+        """
+        Fetches a test case by its ID.
+        :param case_id: The ID of the test case to fetch.
+        :return: A tuple containing the test case's ID, test script, test case, and embedding (if available), or None if not found.
+        """
+        cursor = self.connection.execute(
+            """
+            SELECT id, test_script, test_case, embedding
+            FROM TestCases
+            WHERE id = ?
+            """,
+            (case_id,),
+        )
+        result = cursor.fetchone()
+        cursor.close()
+        return result
