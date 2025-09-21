@@ -4,7 +4,7 @@ from test2text.services.db import DbClient
 def fetch_test_cases_by_requirement(
     db: DbClient, requirement_id: int, radius: float, limit: int
 ) -> list:
-    sql = f"""
+    sql = """
         SELECT
             Requirements.id as req_id,
             Requirements.external_id as req_external_id,
