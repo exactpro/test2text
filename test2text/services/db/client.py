@@ -233,33 +233,6 @@ class DbClient:
         data = self.conn.execute(sql, params)
         return data.fetchall()
 
-    def get_ordered_values_from_requirements(
-        self, distance_sql="", where_clauses="", distance_order_sql="", params=None
-    ) -> list[tuple]:
-        """
-        Extracted values from Requirements table based on the provided where clauses and specified parameters ordered by distance and id.
-        Return a list of tuples containing :
-                req_id,
-                req_external_id,
-                req_summary,
-                distance between annotation and requirement embeddings,
-        """
-        where_sql = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
-        sql = f"""
-                            SELECT
-                                Requirements.id as req_id,
-                                Requirements.external_id as req_external_id,
-                                Requirements.summary as req_summary
-                                {distance_sql}
-                            FROM
-                                Requirements
-                            {where_sql}
-                            ORDER BY
-                                {distance_order_sql}Requirements.id
-                            """
-        data = self.conn.execute(sql, params)
-        return data.fetchall()
-
     def get_ordered_values_from_test_cases(
         self, distance_sql="", where_clauses="", distance_order_sql="", params=None
     ) -> list[tuple]:
