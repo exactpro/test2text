@@ -4,6 +4,7 @@ import streamlit as st
 
 from test2text.services.utils.math_utils import round_distance
 from test2text.services.repositories import requirements
+from test2text.services.repositories import test_cases
 
 SUMMARY_LENGTH = 100
 LABELS_SUMMARY_LENGTH = 15
@@ -171,7 +172,7 @@ def make_a_report():
                                                             smart_search_query=filter_embedding)
 
             requirements_dict = {
-                f"{req_external_id} {summary[:SUMMARY_LENGTH]}...": req_id
+                req_id: f"{req_external_id} {summary[:SUMMARY_LENGTH]}..."
                 for (req_id, req_external_id, summary) in data
             }
 
@@ -180,6 +181,7 @@ def make_a_report():
                 "Choose a requirement to work with",
                 requirements_dict.keys(),
                 key="filter_req_id",
+                format_func=lambda x: requirements_dict[x],
             )
 
             if selected_requirement:
@@ -206,14 +208,7 @@ def make_a_report():
                         )
                         st.info("Limit of selected test cases")
 
-                if filter_radius:
-                    where_clauses.append("distance <= ?")
-                    params.append(f"{filter_radius}")
-
-                if filter_limit:
-                    params.append(f"{filter_limit}")
-
-                rows = db.join_all_tables_by_requirements(where_clauses, params)
+                rows = test_cases.fetch_test_cases_by_requirement(db, selected_requirement, filter_radius, filter_limit)
 
                 if not rows:
                     st.error(

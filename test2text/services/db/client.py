@@ -184,55 +184,6 @@ class DbClient:
             """)
         return cursor.fetchall()
 
-    def join_all_tables_by_requirements(
-        self, where_clauses="", params=None
-    ) -> list[tuple]:
-        """
-        Extract values from requirements with related annotations and their test cases based on the provided where clauses and parameters.
-        Return a list of tuples containing :
-            req_id,
-            req_external_id,
-            req_summary,
-            req_embedding,
-            anno_id,
-            anno_summary,
-            anno_embedding,
-            distance,
-            case_id,
-            test_script,
-            test_case
-        """
-        where_sql = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
-        sql = f"""
-                            SELECT
-                                Requirements.id as req_id,
-                                Requirements.external_id as req_external_id,
-                                Requirements.summary as req_summary,
-                                Requirements.embedding as req_embedding,
-
-                                Annotations.id as anno_id,
-                                Annotations.summary as anno_summary,
-                                Annotations.embedding as anno_embedding,
-
-                                AnnotationsToRequirements.cached_distance as distance,
-
-                                TestCases.id as case_id,
-                                TestCases.test_script as test_script,
-                                TestCases.test_case as test_case
-                            FROM
-                                Requirements
-                                    JOIN AnnotationsToRequirements ON Requirements.id = AnnotationsToRequirements.requirement_id
-                                    JOIN Annotations ON Annotations.id = AnnotationsToRequirements.annotation_id
-                                    JOIN CasesToAnnos ON Annotations.id = CasesToAnnos.annotation_id
-                                    JOIN TestCases ON TestCases.id = CasesToAnnos.case_id
-                            {where_sql}
-                            ORDER BY
-                                Requirements.id, AnnotationsToRequirements.cached_distance, TestCases.id
-                            LIMIT ?
-                """
-        data = self.conn.execute(sql, params)
-        return data.fetchall()
-
     def get_ordered_values_from_test_cases(
         self, distance_sql="", where_clauses="", distance_order_sql="", params=None
     ) -> list[tuple]:

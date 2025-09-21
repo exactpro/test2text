@@ -31,7 +31,7 @@ def fetch_filtered_requirements(db: DbClient,
         if smart_search_query:
             from test2text.services.embeddings.embed import embed_requirement
             embedding = embed_requirement(smart_search_query.strip())
-            conditions.append("vec_distance(Requirements.embedding, ?) < 0.7")
+            conditions.append("vec_distance_L2(Requirements.embedding, ?) < 0.7")
             options.append(serialize_float32(embedding))
         sql += " AND ".join(conditions)
     sql += " ORDER BY Requirements.id ASC"
